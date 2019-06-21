@@ -28,7 +28,8 @@ def index_page():
                 )],style={'textAlign':'center','background':'#e8e9ff','height':'100%'}),
                 html.Div([
                     dcc.Link(
-                    html.Button(id='button',n_clicks=0,children='View Stats',style={'margin':'auto','display':'block'}),href="/Dashboard")
+                    html.Button(id='button',n_clicks=0,children='View Stats',style={'color':'white','padding':'14px 40px','background-color':'#4289f4','margin':'auto','display':'block'}),
+                    href="/Dashboard",style={"text-decoration":'none'})
                 ],style={'paddingTop':'100px','margin':'auto'})
                
 ],style={'background':'#e8e9ff','height':'100%'},id='main')
@@ -46,7 +47,7 @@ def router_dash(router_id):
                     dcc.Link(
                         html.Button(id="reset",n_clicks=0,children="Reset",
                                     style={'border-radius':'12px','margin':'auto','display':'block','color':'white','padding':'14px 40px','background-color':'#4289f4'}),
-                        href='/Dashboard')
+                        href='/Dashboard',style={"text-decoration":'none'})
             
                 ],style={'width':'50%','display':'inline-block'}),
                 html.Div([
@@ -54,7 +55,7 @@ def router_dash(router_id):
                     dcc.Link(
                         html.Button(id="b_nw",n_clicks=0,children="Details",
                                     style={'border-radius':'12px','margin':'auto','display':'block','color':'white','padding':'14px 40px','background-color':'#4289f4'}),
-                        href="/Network_Health")
+                        href="/Network_Health",style={"text-decoration":'none'})
             
                 ],style={'width':'50%','display':'inline-block'})]),
                 html.Div([
@@ -63,7 +64,7 @@ def router_dash(router_id):
                     dcc.Link(
                         html.Button(id="b_sw",n_clicks=0,children="Details",
                                     style={'border-radius':'12px','margin':'auto','display':'block','color':'white','padding':'14px 40px','background-color':'#4289f4'}),
-                        href="/Software_Health")
+                        href="/Software_Health",style={"text-decoration":'none'})
             
                 ],style={'width':'50%','display':'inline-block'}),
                 html.Div([
@@ -71,7 +72,7 @@ def router_dash(router_id):
                     dcc.Link(
                         html.Button(id="b_hw",n_clicks=0,children="Details",
                                     style={'border-radius':'12px','margin':'auto','display':'block','color':'white','padding':'14px 40px','background-color':'#4289f4'}),
-                        href="/Hardware_Health")
+                        href="/Hardware_Health",style={"text-decoration":'none'})
             
                 ],style={'width':'50%','display':'inline-block'})])
 
@@ -205,6 +206,7 @@ def router_details(router_id,param):
     fig['layout']['yaxis2'].update(title='B')
     fig['layout']['yaxis3'].update(title='C')
     fig['layout']['yaxis4'].update(title='D')
+    fig['layout']['title'].update(text=param)
 
     layout=html.Div([
 

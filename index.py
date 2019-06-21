@@ -14,7 +14,7 @@ app.layout = html.Div([
 ])
 
 @app.callback(Output('content', 'children'),
-              [Input('url', 'pathname'),Input('router_id','children')])
+              [Input('url', 'pathname')],[State('router_id','children')])
 def display_page(pathname,router_id):
     
     if pathname == 'Routers':
