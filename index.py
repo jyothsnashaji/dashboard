@@ -10,6 +10,7 @@ import re
 app.layout = html.Div([
     dcc.Location(id='url',pathname="Routers", refresh=False),
     html.Div(id='content'),
+    dcc.Tabs(id="tabs"),
     html.Div(id="router_id",style={'display':'none'})
 ])
 
