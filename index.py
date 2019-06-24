@@ -4,31 +4,32 @@ from dash.dependencies import Input, Output,State
 import pandas as pd
 from app import app
 from layouts import index_page,router_dash,router_details
-import callbacks 
+import callbacks as cb
 import re
 
 app.layout = html.Div([
-    dcc.Location(id='url',pathname="Routers", refresh=False),
-    html.Div(id='content'),
-    dcc.Tabs(id="tabs"),
-    html.Div(id="router_id",style={'display':'none'})
+                html.Div(id='n_clicks_prev',children='0',style={'display':'none'}),
+                dcc.Tabs(id='tabs',children=[
+                    dcc.Tab(children=index_page)
+                ])
 ])
-
-@app.callback(Output('content', 'children'),
-              [Input('url', 'pathname')],[State('router_id','children')])
-def display_page(pathname,router_id):
     
-    if pathname == 'Routers':
-        return index_page()
-    elif pathname == '/Dashboard':
-        return router_dash(router_id)
-    elif re.findall(r'_Health$',pathname):
-        strip=pathname.split('/')
-        split=strip[1].split('_')
-        return router_details(router_id,split[0]+' '+split[1])
-    else:
-        return '404'
+   
 
+
+@app.callback(Output('tabs','children'),[Input('button','n_clicks'),Input('table','selected_rows')],[State('n_clicks_prev','children'),State('tabs','children')])
+def generate_dashboard(n_clicks,selected_rows,n_clicks_prev,children):
+    if (n_clicks>int(n_clicks_prev)):
+        router_id=cb.get_router_id(selected_rows)
+        children.append(dcc.Tab(label=str(router_id),id=str(router_id),value=str(router_id),children=router_dash(router_id)))
+    return children
+
+
+@app.callback(Output('n_clicks_prev','children'),[Input('button','n_clicks')],[State('n_clicks_prev','children')])
+def update_n_clicks(n_clicks,n_clicks_prev):
+    if (n_clicks>int(n_clicks_prev)):
+        n_clicks_prev=str(n_clicks)
+    return n_clicks_prev    
 
 
 if __name__ == '__main__':

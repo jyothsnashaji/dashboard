@@ -12,10 +12,10 @@ from dash.dependencies import Input, Output,State
 
 
 
-def index_page():
-    df=pd.read_csv('Routerdata.csv')
-    df=df.sort_values('Router_id')
-    return html.Div([
+
+df=pd.read_csv('Routerdata.csv')
+df=df.sort_values('Router_id')
+index_page= html.Div([
                 html.Div([
                     html.H1(children="ROUTERS",style={"textAlign":'center','paddingTop':'30px','font':'Comic Sans MS Header','color':'#4289f4'})]),
                 html.Div([
@@ -27,9 +27,9 @@ def index_page():
 
                 )],style={'textAlign':'center','background':'#e8e9ff','height':'100%'}),
                 html.Div([
-                    dcc.Link(
-                    html.Button(id='button',n_clicks=0,children='View Stats',style={'color':'white','padding':'14px 40px','background-color':'#4289f4','margin':'auto','display':'block'}),
-                    href="/Dashboard",style={"text-decoration":'none'})
+                    
+                    html.Button(id='button',n_clicks=0,children='View Stats',style={'color':'white','padding':'14px 40px','background-color':'#4289f4','margin':'auto','display':'block'})
+         
                 ],style={'paddingTop':'100px','margin':'auto'})
                
 ],style={'background':'#e8e9ff','height':'100%'},id='main')
