@@ -169,7 +169,7 @@ def update_gaugemeter(param,router_id):
             'yref': 'paper',
             'x': 0.23,
             'y': 0.45,
-            'text': 'Score = '+str(score),
+            'text': 'Score = '+str(round(score,2)),
             'font':{'size':'20px','color':'#4289f4'},
             'showarrow': False,
             'align':'center'
