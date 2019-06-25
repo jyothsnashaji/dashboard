@@ -35,49 +35,56 @@ index_page= html.Div([
 ],style={'background':'#e8e9ff','height':'100%'},id='main')
 
 
-
-
-def router_dash(router_id):
+def router_dash_layout(router_id):
     return html.Div([
+                
                 html.H1(children='Router '+str(router_id),
                 style={"textAlign":'center','paddingTop':'30px','font':'Comic Sans MS Header','color':'#4289f4'}),
                 html.Div([
                 html.Div([
-                    dcc.Graph(id="g_sum",figure=update_gaugemeter("Summary",router_id)),
-                    dcc.Link(
-                        html.Button(id="reset",n_clicks=0,children="Reset",
-                                    style={'border-radius':'12px','margin':'auto','display':'block','color':'white','padding':'14px 40px','background-color':'#4289f4'}),
-                        href='/Dashboard',style={"text-decoration":'none'})
+                    dcc.Graph(id="g_sum"+str(router_id),figure=update_gaugemeter("Summary",router_id)),
+                    
+                    html.Button(id="reset"+str(router_id),n_clicks=0,children="Reset",
+                                style={'border-radius':'12px','margin':'auto','display':'block','color':'white','padding':'14px 40px','background-color':'#4289f4'})
+                        
             
                 ],style={'width':'50%','display':'inline-block'}),
                 html.Div([
-                    dcc.Graph(id="g_nw",figure=update_gaugemeter("Network Health",router_id)),
-                    dcc.Link(
-                        html.Button(id="b_nw",n_clicks=0,children="Details",
-                                    style={'border-radius':'12px','margin':'auto','display':'block','color':'white','padding':'14px 40px','background-color':'#4289f4'}),
-                        href="/Network_Health",style={"text-decoration":'none'})
+                    dcc.Graph(id="g_nw"+str(router_id),figure=update_gaugemeter("Network Health",router_id)),
+                    
+                    html.Button(id="b_nw"+str(router_id),n_clicks=0,children="Details",
+                                style={'border-radius':'12px','margin':'auto','display':'block','color':'white','padding':'14px 40px','background-color':'#4289f4'})
+                        
             
                 ],style={'width':'50%','display':'inline-block'})]),
                 html.Div([
                 html.Div([
-                    dcc.Graph(id="g_sw",figure=update_gaugemeter("Software Health",router_id)),
-                    dcc.Link(
-                        html.Button(id="b_sw",n_clicks=0,children="Details",
-                                    style={'border-radius':'12px','margin':'auto','display':'block','color':'white','padding':'14px 40px','background-color':'#4289f4'}),
-                        href="/Software_Health",style={"text-decoration":'none'})
+                    dcc.Graph(id="g_sw"+str(router_id),figure=update_gaugemeter("Software Health",router_id)),
+                    html.Button(id="b_sw"+str(router_id),n_clicks=0,children="Details",
+                                style={'border-radius':'12px','margin':'auto','display':'block','color':'white','padding':'14px 40px','background-color':'#4289f4'})
             
                 ],style={'width':'50%','display':'inline-block'}),
                 html.Div([
-                    dcc.Graph(id="g_hw",figure=update_gaugemeter("Hardware Health",router_id)),
-                    dcc.Link(
-                        html.Button(id="b_hw",n_clicks=0,children="Details",
-                                    style={'border-radius':'12px','margin':'auto','display':'block','color':'white','padding':'14px 40px','background-color':'#4289f4'}),
-                        href="/Hardware_Health",style={"text-decoration":'none'})
+                    dcc.Graph(id="g_hw"+str(router_id),figure=update_gaugemeter("Hardware Health",router_id)),
+                    
+                    html.Button(id="b_hw"+str(router_id),n_clicks=0,children="Details",
+                                style={'border-radius':'12px','margin':'auto','display':'block','color':'white','padding':'14px 40px','background-color':'#4289f4'})
             
-                ],style={'width':'50%','display':'inline-block'})])
+                ],style={'width':'50%','display':'inline-block'})
+                ])
+            ],style={'position':'relative'})
+        
 
-               
-        ],style={'position':'relative'})
+def router_dash(router_id):
+    return html.Div([
+                html.Div(id='nw_n_clicks'+str(router_id),children='0',style={'display':'none'}),
+                dcc.Tabs(id='dash_tabs'+str(router_id),value='dash'+str(router_id),children=[
+                    dcc.Tab(label='Dashboard',value='dash'+str(router_id),id='dash'+str(router_id))]),
+                html.Div(id='dash_contents')
+                ])
+          
+    
+        
 def update_gaugemeter(param,router_id):
     df=pd.read_csv('Routerdata.csv')
     

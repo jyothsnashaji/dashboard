@@ -3,33 +3,40 @@ import dash_html_components as html
 from dash.dependencies import Input, Output,State
 import pandas as pd
 from app import app
-from layouts import index_page,router_dash,router_details
+from layouts import index_page,router_dash,router_details,router_dash_layout
 import callbacks as cb
 import re
 
 app.layout = html.Div([
                 html.Div(id='n_clicks_prev',children='0',style={'display':'none'}),
-                dcc.Tabs(id='tabs',children=[
-                    dcc.Tab(children=index_page)
+                dcc.Tabs(id='tabs',value="index_page",children=[
+                    dcc.Tab(id="index_page",value="index_page", label='Routers'),
+                    ]),
+                html.Div(id='content')
                 ])
-])
     
-   
 
+@app.callback(Output('content','children'),[Input('tabs','value')])
+def display_dashboards(value):
+    if(value=='index_page'):
+        return index_page
+    else:
+        return router_dash(int(value))
+ 
 
-@app.callback(Output('tabs','children'),[Input('button','n_clicks'),Input('table','selected_rows')],[State('n_clicks_prev','children'),State('tabs','children')])
-def generate_dashboard(n_clicks,selected_rows,n_clicks_prev,children):
-    if (n_clicks>int(n_clicks_prev)):
-        router_id=cb.get_router_id(selected_rows)
-        children.append(dcc.Tab(label=str(router_id),id=str(router_id),value=str(router_id),children=router_dash(router_id)))
-    return children
+@app.callback(Output('dash_contents','children'),[Input('dash_tabs1','value')])
+def display_details(value):
+    if value=='dash1':
+        return router_dash_layout(1)
+    elif value=='nw1':
+        return router_details(1,'Network Health')
+    elif value=='hw1':
+        return router_details(1,'Hardware Health')
+    elif value=='sw1':
+        return router_details(1,'Software health')
+    else:
+        return html.Div("404")
 
-
-@app.callback(Output('n_clicks_prev','children'),[Input('button','n_clicks')],[State('n_clicks_prev','children')])
-def update_n_clicks(n_clicks,n_clicks_prev):
-    if (n_clicks>int(n_clicks_prev)):
-        n_clicks_prev=str(n_clicks)
-    return n_clicks_prev    
 
 
 if __name__ == '__main__':
