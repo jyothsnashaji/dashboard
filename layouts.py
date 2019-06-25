@@ -77,10 +77,10 @@ def router_dash_layout(router_id):
 
 def router_dash(router_id):
     return html.Div([
-                html.Div(id='nw_n_clicks'+str(router_id),children='0',style={'display':'none'}),
+               
                 dcc.Tabs(id='dash_tabs'+str(router_id),value='dash'+str(router_id),children=[
                     dcc.Tab(label='Dashboard',value='dash'+str(router_id),id='dash'+str(router_id))]),
-                html.Div(id='dash_contents')
+                html.Div(id='dash_contents'+str(router_id))
                 ])
           
     

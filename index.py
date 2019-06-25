@@ -8,7 +8,7 @@ import callbacks as cb
 import re
 
 app.layout = html.Div([
-                html.Div(id='n_clicks_prev',children='0',style={'display':'none'}),
+               
                 dcc.Tabs(id='tabs',value="index_page",children=[
                     dcc.Tab(id="index_page",value="index_page", label='Routers'),
                     ]),
@@ -22,20 +22,27 @@ def display_dashboards(value):
         return index_page
     else:
         return router_dash(int(value))
- 
 
-@app.callback(Output('dash_contents','children'),[Input('dash_tabs1','value')])
-def display_details(value):
-    if value=='dash1':
-        return router_dash_layout(1)
-    elif value=='nw1':
-        return router_details(1,'Network Health')
-    elif value=='hw1':
-        return router_details(1,'Hardware Health')
-    elif value=='sw1':
-        return router_details(1,'Software health')
-    else:
-        return html.Div("404")
+def generate_display_details(router_id):
+    def display_details(value):
+        if value=='dash'+str(router_id):
+            return router_dash_layout(router_id)
+        elif value=='nw'+str(router_id):
+            return router_details(router_id,'Network Health')
+        elif value=='hw'+str(router_id):
+            return router_details(router_id,'Hardware Health')
+        elif value=='sw'+str(router_id):
+            return router_details(router_id,'Software Health')
+        else:
+            return html.Div("404"+value+' '+str(router_id))
+    return display_details
+
+for router_id in cb.get_list_of_routers():
+    app.callback(
+        Output('dash_contents'+str(router_id),'children'),
+        [Input('dash_tabs'+str(router_id),'value')]
+    )(generate_display_details(router_id))
+    
 
 
 
