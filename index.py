@@ -7,22 +7,34 @@ from layouts import index_page,router_dash,router_details,router_dash_layout
 import callbacks as cb
 import re
 
+
 app.layout = html.Div([
                
                 dcc.Tabs(id='tabs',value="index_page",children=[
                     dcc.Tab(id="index_page",value="index_page", label='Routers'),
                     ]),
+               # dcc.Store(id='session',storage_type='session'),
                 html.Div(id='content')
                 ])
-    
 
-@app.callback(Output('content','children'),[Input('tabs','value')])
-def display_dashboards(value):
+
+
+@app.callback(Output('content','children'),[Input('tabs','value')]#,[State('session','data'),
+                                                                    #State('contents','children'),
+                                                                   # State('session','modified_timestamp')]
+                                                                   )
+def display_dashboards(value):#,data,children,ts):
     if(value=='index_page'):
         return index_page
     else:
         return router_dash(int(value))
-
+    '''
+    if ts is None:
+        data['index_page']=index_page
+        return index_page
+    else:
+        return data.get(value,router_dash(int(value)))
+    '''
 def generate_display_details(router_id):
     def display_details(value):
         if value=='dash'+str(router_id):
