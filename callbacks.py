@@ -8,21 +8,16 @@ import dash_html_components as html
 from dash.exceptions import PreventUpdate
 
 @app.callback([Output('tabs','children'),
-               Output('tabs','value'),
-              # Output('session','data')
-              ],[Input('button','n_clicks')],[State('table','selected_rows'),
-                                                                    State('tabs','children')#,
-                                                                    #State('contents','children'),
-                                                                    #State('session','data')
-                                                                    ])
-def generate_dashboard_tabs(n_clicks,selected_rows,children):#,layout,data):
+               Output('tabs','value')],[Input('button','n_clicks')],[State('table','selected_rows'),
+                                                                     State('tabs','children')])
+def generate_dashboard_tabs(n_clicks,selected_rows,children):
     if n_clicks:
         router_id=str(get_router_id(selected_rows))
         print (n_clicks)
         if {'props': {'children': None,'id':router_id, 'label': router_id, 'value': router_id}, 'type': 'Tab', 'namespace': 'dash_core_components'} not in children:
             children.append(dcc.Tab(label=router_id,id=router_id,value=router_id))
-        #data['index_page']=layout
-        return children,router_id#,data
+        
+        return children,router_id
             
     else:
         raise PreventUpdate

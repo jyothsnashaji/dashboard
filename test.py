@@ -84,3 +84,11 @@ for store in ('memory', 'local', 'session'):
 
 if __name__ == '__main__':
     app.run_server(debug=True, port=8077, threaded=True)
+
+
+    
+ '''   if(value=='index_page'):
+        return index_page,value,data
+    else:
+        return router_dash(int(value)),value,data
+  '''
