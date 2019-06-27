@@ -6,24 +6,40 @@ import math
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.exceptions import PreventUpdate
+import os
+
+@app.callback(Output('table','data'),[Input('input','n_submit')],[State('input','value'),State('table','data')])
+def add_router(n_submit,val,data):
+    if n_submit:
+        val=val.replace('.','_')
+        pid=os.fork()
+        if not pid:
+            os.execl('data_collection.py',val)
+        data.append(val)
+    return data
+
+
+
 
 def get_tab_child(router_id):
     return {'props': {'children': None,'id':router_id, 'label': 'ROUTER '+router_id, 'value': router_id,'className': 'custom-tab', 'selected_className': 'custom-tab--selected'}, 'type': 'Tab', 'namespace': 'dash_core_components'}
 
 @app.callback([Output('tabs','children'),
-               Output('tabs','value')],[Input('table','active_cell')],[
-                                                                     State('tabs','children')])
-def generate_dashboard_tabs(cell,children):
+               Output('tabs','value')],[Input('table','active_cell'),Input('close','n_clicks')],[
+                                                                     State('tabs','children'),State('tabs','value')])
+def generate_dashboard_tabs(cell,n_clicks,children,value):
     if cell:
-        
         router_id=str(get_router_id(cell['row']))
-        
         if get_tab_child(router_id) not in children:
             children.append(dcc.Tab(label='ROUTER '+router_id,id=router_id,value=router_id,className='custom-tab',
                 selected_className='custom-tab--selected'))
         
         return children,router_id
-            
+    if n_clicks and value!='index_page':
+        val=children[children.index(get_tab_child(value))+1] or children[children.index(get_tab_child(value))-1]
+        children.pop(get_tab_child(value))
+        return children,val
+
     else:
         raise PreventUpdate
 
@@ -41,7 +57,7 @@ def generate_nw_details_tabs(router_id):
             time=np.max(times)
             if time==t_r:
                 return [
-                    dcc.Tab(label='Dashboard',value='dash'+str(router_id),id='dash'+str(router_id))]
+                    dcc.Tab(label='Dashboard',value='dash'+str(router_id),id='dash'+str(router_id))],'dash'+str(router_id)
             elif time==t_nw:
                 label='Network Health'
                 val='nw'+str(router_id)

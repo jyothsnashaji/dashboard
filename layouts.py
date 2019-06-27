@@ -8,7 +8,7 @@ import plotly.graph_objs as go
 from plotly import tools
 import app
 from dash.dependencies import Input, Output,State
-
+import db
 
 
 
@@ -19,14 +19,15 @@ button_style={'position':'relative','border-radius':'50%','bottom':'30px','color
 index_page= html.Div([
                 
                 html.Div([
+                    dcc.Input(id='input',value='Add Router',n_submit=0),
                     dash_table.DataTable(id='table',columns=[{'name':'Choose a Router','id':'Router_id'}],
-                                                    data=[{'Router_id':i} for i in df['Router_id'].unique()],
+                                                    data=db.get_list_of_routers(),
                                                     style_cell={'textAlign':'center'},style_as_list_view=True, style_cell_conditional=[
-        {
-            'if': {'row_index': 'odd'},
-            'backgroundColor': 'rgb(248, 248, 248)'
-        }
-    ],
+                                                            {
+                                                                'if': {'row_index': 'odd'},
+                                                                'backgroundColor': 'rgb(248, 248, 248)'
+                                                            }
+                                                        ],
                                                     style_table={'height':'100%','paddingTop':'20px','paddingBottom':'20px','width':'75%','margin-left':'auto', 'margin-right':'auto'},
                                                     
                 )])
@@ -39,10 +40,7 @@ def router_dash_layout(router_id):
     global button_style
     return html.Div([
                 
-                #html.Div([
-                #html.Button(id='close'+str(router_id),n_clicks=0,children='x',style={'background':'white','height':'10px','width':'10px','color':'black','border':'hidden','float':'right'})
-                #]),
-                
+                       
 
                 html.Div([
                 html.Div([
