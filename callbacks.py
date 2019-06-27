@@ -7,21 +7,26 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.exceptions import PreventUpdate
 
+def get_tab_child(router_id):
+    return {'props': {'children': None,'id':router_id, 'label': 'ROUTER '+router_id, 'value': router_id,'className': 'custom-tab', 'selected_className': 'custom-tab--selected'}, 'type': 'Tab', 'namespace': 'dash_core_components'}
+
 @app.callback([Output('tabs','children'),
-               Output('tabs','value')],[Input('button','n_clicks')],[State('table','selected_rows'),
+               Output('tabs','value')],[Input('table','active_cell')],[
                                                                      State('tabs','children')])
-def generate_dashboard_tabs(n_clicks,selected_rows,children):
-    if n_clicks:
-        router_id=str(get_router_id(selected_rows))
-        print (n_clicks)
-        if {'props': {'children': None,'id':router_id, 'label': router_id, 'value': router_id}, 'type': 'Tab', 'namespace': 'dash_core_components'} not in children:
-            children.append(dcc.Tab(label=router_id,id=router_id,value=router_id))
+def generate_dashboard_tabs(cell,children):
+    if cell:
+        
+        router_id=str(get_router_id(cell['row']))
+        
+        if get_tab_child(router_id) not in children:
+            children.append(dcc.Tab(label='ROUTER '+router_id,id=router_id,value=router_id,className='custom-tab',
+                selected_className='custom-tab--selected'))
         
         return children,router_id
             
     else:
         raise PreventUpdate
-    
+
 def get_list_of_routers():
     df=pd.read_csv('Routerdata.csv')
     df=df.sort_values('Router_id')
@@ -46,8 +51,10 @@ def generate_nw_details_tabs(router_id):
             else:
                 label='Hardware Health'
                 val='hw'+str(router_id)
-            if {'props': {'children': None,'id':val, 'label': label, 'value': val}, 'type': 'Tab', 'namespace': 'dash_core_components'} not in children:
-                children.append(dcc.Tab(label=label,id=val,value=val))
+            if {'props': {'children': None,'id':val, 'label': label, 'value': val,'className':'custom-tab_sub',
+                'selected_className':'custom-tab--selected_sub'}, 'type': 'Tab', 'namespace': 'dash_core_components'} not in children:
+                children.append(dcc.Tab(label=label,id=val,value=val,className='custom-tab_sub',
+                selected_className='custom-tab--selected_sub'))
         return children,val
             
         
@@ -64,8 +71,30 @@ for router_id in get_list_of_routers():
         [State('dash_tabs'+str(router_id),'children'),
         State('dash_tabs'+str(router_id),'value')]
     )(generate_nw_details_tabs(router_id))
-    
+'''
+def close_dash(router_id):
+    def close_dash_sub(n_clicks,tablist,data):
+        if n_clicks:
+            if tablist[tablist.index(get_tab_child(str(router_id)))+1] ==None:
+                value=tablist[tablist.index(get_tab_child(str(router_id)))-1]['props']['id']
+            else:
+                value=tablist[tablist.index(get_tab_child(str(router_id)))+1]['props']['id']
+            
+            tablist.remove(get_tab_child(str(router_id)))
+            data.pop(str(router_id))
+        return tablist,data,value
+    return close_dash_sub
 
+
+
+for router_id in get_list_of_routers():
+    app.callback([Output('dash_tabs','children'),
+                Output('session','data'),
+                Output('tabs','value')],[Input('close'+str(router_id),'n_clicks')],
+                [State('dash_tabs','children'),State('session','data')]
+    )(close_dash(router_id))
+           
+'''
 def get_network_col():
     return 'Network Health'
 
@@ -78,11 +107,11 @@ def get_software_col():
 
 
 
-def get_router_id(selected_rows):
+def get_router_id(row):
     df=pd.read_csv('Routerdata.csv')
     df=df.sort_values('Router_id')
     temp=df['Router_id'].unique()
-    return temp[selected_rows[0]]
+    return temp[row]
     
 
     

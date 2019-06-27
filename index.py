@@ -7,14 +7,15 @@ from layouts import index_page,router_dash,router_details,router_dash_layout
 import callbacks as cb
 import re
 
-
 app.layout = html.Div([
-               
-                dcc.Tabs(id='tabs',value="index_page",children=[
-                    dcc.Tab(id="index_page",value="index_page", label='Routers'),
+                html.Div(children="HEALTH MONITOR DASHBOARD",style={'height':'100px','background': '#00bcd4',"textAlign":'center','paddingTop':'30px','font-size':'30px','font':'Comic Sans MS Header','color':'#4289f4'}),
+                dcc.Tabs(id='tabs',value="index_page",parent_className='custom-tabs',className='custom-tabs-container',colors={'primary':'red','background':'white','border':'white'},children=[
+                    dcc.Tab(id="index_page",className='custom-tab',label='HOME',
+                selected_className='custom-tab--selected',value="index_page"),
                     ]),
                 dcc.Store(id='session',storage_type='session'),
-                html.Div(id='content',key='None')
+                html.Div(id='content',key='None',style={'height':'100%','bottom':'0px'}),
+                html.Img(src=app.get_asset_url('download.png'),style={'height':'50px','width':'100px','position':'relative','paddingLeft':'20px','bottom':'0px'})
                 ])
 
 

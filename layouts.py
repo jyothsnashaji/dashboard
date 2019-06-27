@@ -15,37 +15,42 @@ from dash.dependencies import Input, Output,State
 
 df=pd.read_csv('Routerdata.csv')
 df=df.sort_values('Router_id')
+button_style={'position':'relative','border-radius':'50%','bottom':'30px','color':'white','padding':'14px 40px','background-color':'#4289f4','margin':'auto','display':'block'}
 index_page= html.Div([
+                
                 html.Div([
-                    html.H1(children="ROUTERS",style={"textAlign":'center','paddingTop':'30px','font':'Comic Sans MS Header','color':'#4289f4'})]),
-                html.Div([
-                    dash_table.DataTable(id='table',columns=[{'name':'Router_id','id':'Router_id'}],
+                    dash_table.DataTable(id='table',columns=[{'name':'Choose a Router','id':'Router_id'}],
                                                     data=[{'Router_id':i} for i in df['Router_id'].unique()],
-                                                    style_cell={'textAlign':'center'},
-                                                    row_selectable='single',
-                                                    selected_rows=[0]
-
-                )],style={'textAlign':'center','background':'#e8e9ff','height':'100%'}),
-                html.Div([
-                    
-                    html.Button(id='button',n_clicks=0,children='View Stats',style={'color':'white','padding':'14px 40px','background-color':'#4289f4','margin':'auto','display':'block'})
-         
-                ],style={'paddingTop':'100px','margin':'auto'})
+                                                    style_cell={'textAlign':'center'},style_as_list_view=True, style_cell_conditional=[
+        {
+            'if': {'row_index': 'odd'},
+            'backgroundColor': 'rgb(248, 248, 248)'
+        }
+    ],
+                                                    style_table={'height':'100%','paddingTop':'20px','paddingBottom':'20px','width':'75%','margin-left':'auto', 'margin-right':'auto'},
+                                                    
+                )])
+                
                
-],style={'background':'#e8e9ff','height':'100%'},id='main')
+],id='main')
 
 
 def router_dash_layout(router_id):
+    global button_style
     return html.Div([
                 
-                html.H1(children='Router '+str(router_id),
-                style={"textAlign":'center','paddingTop':'30px','font':'Comic Sans MS Header','color':'#4289f4'}),
+                #html.Div([
+                #html.Button(id='close'+str(router_id),n_clicks=0,children='x',style={'background':'white','height':'10px','width':'10px','color':'black','border':'hidden','float':'right'})
+                #]),
+                
+
                 html.Div([
                 html.Div([
-                    dcc.Graph(id="g_sum"+str(router_id),figure=update_gaugemeter("Summary",router_id)),
+                    dcc.Graph(id="g_sum"+str(router_id),figure=update_gaugemeter("Summary",router_id),
+                    style={}),
                     
                     html.Button(id="reset"+str(router_id),n_clicks=0,children="Reset",
-                                style={'border-radius':'12px','margin':'auto','display':'block','color':'white','padding':'14px 40px','background-color':'#4289f4'})
+                                style=button_style)
                         
             
                 ],style={'width':'50%','display':'inline-block'}),
@@ -53,7 +58,7 @@ def router_dash_layout(router_id):
                     dcc.Graph(id="g_nw"+str(router_id),figure=update_gaugemeter("Network Health",router_id)),
                     
                     html.Button(id="b_nw"+str(router_id),n_clicks=0,children="Details",
-                                style={'border-radius':'12px','margin':'auto','display':'block','color':'white','padding':'14px 40px','background-color':'#4289f4'})
+                                style=button_style)
                         
             
                 ],style={'width':'50%','display':'inline-block'})]),
@@ -61,14 +66,14 @@ def router_dash_layout(router_id):
                 html.Div([
                     dcc.Graph(id="g_sw"+str(router_id),figure=update_gaugemeter("Software Health",router_id)),
                     html.Button(id="b_sw"+str(router_id),n_clicks=0,children="Details",
-                                style={'border-radius':'12px','margin':'auto','display':'block','color':'white','padding':'14px 40px','background-color':'#4289f4'})
+                                style=button_style)
             
                 ],style={'width':'50%','display':'inline-block'}),
                 html.Div([
                     dcc.Graph(id="g_hw"+str(router_id),figure=update_gaugemeter("Hardware Health",router_id)),
                     
                     html.Button(id="b_hw"+str(router_id),n_clicks=0,children="Details",
-                                style={'border-radius':'12px','margin':'auto','display':'block','color':'white','padding':'14px 40px','background-color':'#4289f4'})
+                                style=button_style)
             
                 ],style={'width':'50%','display':'inline-block'})
                 ])
@@ -78,8 +83,10 @@ def router_dash_layout(router_id):
 def router_dash(router_id):
     return html.Div([
                
-                dcc.Tabs(id='dash_tabs'+str(router_id),value='dash'+str(router_id),children=[
-                    dcc.Tab(label='Dashboard',value='dash'+str(router_id),id='dash'+str(router_id))]),
+                dcc.Tabs(id='dash_tabs'+str(router_id),value='dash'+str(router_id),parent_className='custom-tabs_sub',className='custom-tabs-container_sub',children=[
+                    dcc.Tab(label='Dashboard',value='dash'+str(router_id),className='custom-tab_sub',
+                selected_className='custom-tab--selected_sub',id='dash'+str(router_id))]),
+                
                 html.Div(id='dash_contents'+str(router_id))
                 ])
           
