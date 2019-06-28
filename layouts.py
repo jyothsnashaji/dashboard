@@ -8,20 +8,18 @@ import plotly.graph_objs as go
 from plotly import tools
 import app
 from dash.dependencies import Input, Output,State
-import db
+from db import get_list_of_routers,get_col
 
 
 
 
-df=pd.read_csv('Routerdata.csv')
-df=df.sort_values('Router_id')
 button_style={'position':'relative','border-radius':'50%','bottom':'30px','color':'white','padding':'14px 40px','background-color':'#4289f4','margin':'auto','display':'block'}
 index_page= html.Div([
                 
                 html.Div([
                     dcc.Input(id='input',value='Add Router',n_submit=0),
                     dash_table.DataTable(id='table',columns=[{'name':'Choose a Router','id':'Router_id'}],
-                                                    data=db.get_list_of_routers(),
+                                                    data=[{'Router_id':i} for i in get_list_of_routers()] ,
                                                     style_cell={'textAlign':'center'},style_as_list_view=True, style_cell_conditional=[
                                                             {
                                                                 'if': {'row_index': 'odd'},
@@ -91,10 +89,8 @@ def router_dash(router_id):
     
         
 def update_gaugemeter(param,router_id):
-    df=pd.read_csv('Routerdata.csv')
     
-    df=df[df['Router_id']==router_id]
-    score=df[param].mean()
+    score=get_col(param,router_id).mean()
     xco=0.24-0.15*math.cos(math.radians(1.8*score))
     yco=0.5+0.15*math.sin(math.radians(1.8*score))
     base_chart = {
@@ -195,15 +191,12 @@ def update_gaugemeter(param,router_id):
     return fig
    
 def router_details(router_id,param):
-    df=pd.read_csv('Routerdata.csv')
+  
 
-    df=df[df['Router_id']==router_id]
-    
-
-    trace1=go.Scatter(x=df['Time'],y=df[param],name='A')
-    trace2=go.Scatter(x=df['Time'],y=df[param],name='B')
-    trace3=go.Scatter(x=df['Time'],y=df[param],name='C')
-    trace4=go.Scatter(x=df['Time'],y=df[param],name='D')
+    trace1=go.Scatter(x=get_col('Time',router_id),y=get_col(param,router_id),name='A')
+    trace2=go.Scatter(x=get_col('Time',router_id),y=get_col(param,router_id),name='B')
+    trace3=go.Scatter(x=get_col('Time',router_id),y=get_col(param,router_id),name='C')
+    trace4=go.Scatter(x=get_col('Time',router_id),y=get_col(param,router_id),name='D')
 
     fig = tools.make_subplots(rows=2, cols=2, subplot_titles=('A',"B","C","D"))
 

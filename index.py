@@ -4,8 +4,9 @@ from dash.dependencies import Input, Output,State
 import pandas as pd
 from app import app
 from layouts import index_page,router_dash,router_details,router_dash_layout
-import callbacks as cb
+import callbacks 
 import re
+from db import get_list_of_routers
 
 app.layout = html.Div([
                 html.Div(children="HEALTH MONITOR DASHBOARD",style={'height':'100px','background': '#00bcd4',"textAlign":'center','paddingTop':'30px','font-size':'30px','font':'Comic Sans MS Header','color':'#4289f4'}),
@@ -13,9 +14,7 @@ app.layout = html.Div([
                     dcc.Tab(id="index_page",className='custom-tab',label='HOME',
                 selected_className='custom-tab--selected',value="index_page"),
                     ]),
-                html.Div([
-                html.Button(id='close',n_clicks=0,title='Close Router',children='x',style={'background':'white','font-size':'30px','height':'30px','width':'30px','color':'black','border':'hidden','float':'right'})
-                ]),
+           
                 dcc.Store(id='session',storage_type='session'),
                 html.Div(id='content',key='None',style={'height':'100%','bottom':'0px'}),
                 html.Img(src=app.get_asset_url('download.png'),style={'height':'50px','width':'100px','position':'relative','paddingLeft':'20px','bottom':'0px'})
@@ -47,15 +46,7 @@ def display_dashboards(value,layout,key,data,tablist,ts):
         else:
             temp=index_page
         data[key]=layout
-        '''
-        pagelist=[]
-        for tab in tablist:
-            pagelist.append(tab['props']['id'])
-        for page in list(data):
-            if page not in tablist:
-                data.pop(page)
-                break
-        '''
+        
         return temp,value,data
     
 def generate_display_details(router_id):
@@ -72,7 +63,7 @@ def generate_display_details(router_id):
             return html.Div("404"+value+' '+str(router_id))
     return display_details
 
-for router_id in cb.get_list_of_routers():
+for router_id in get_list_of_routers():
     app.callback(
         Output('dash_contents'+str(router_id),'children'),
         [Input('dash_tabs'+str(router_id),'value')]

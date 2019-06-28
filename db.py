@@ -1,8 +1,15 @@
 import pandas as pd
 
+df=pd.read_csv('Routerdata.csv')
+df=df.sort_values('Router_id')
+
+def get_col(param,router_id):
+    global df
+    df=df[df['Router_id']==router_id]
+    return df[param]
+
 def get_list_of_routers():
-    df=pd.read_csv('Routerdata.csv')
-    df=df.sort_values('Router_id')
+    global df
     return df['Router_id'].unique()
 
 

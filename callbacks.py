@@ -7,17 +7,19 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.exceptions import PreventUpdate
 import os
+from db import get_router_id,get_list_of_routers,get_col
 
+'''
 @app.callback(Output('table','data'),[Input('input','n_submit')],[State('input','value'),State('table','data')])
 def add_router(n_submit,val,data):
     if n_submit:
-        val=val.replace('.','_')
+        
         pid=os.fork()
         if not pid:
-            os.execl('data_collection.py',val)
-        data.append(val)
+            os.system('python data_collection.py 7.23.98.1')
+        data.append({'Router_id':val})
     return data
-
+'''
 
 
 
@@ -25,9 +27,9 @@ def get_tab_child(router_id):
     return {'props': {'children': None,'id':router_id, 'label': 'ROUTER '+router_id, 'value': router_id,'className': 'custom-tab', 'selected_className': 'custom-tab--selected'}, 'type': 'Tab', 'namespace': 'dash_core_components'}
 
 @app.callback([Output('tabs','children'),
-               Output('tabs','value')],[Input('table','active_cell'),Input('close','n_clicks')],[
+               Output('tabs','value')],[Input('table','active_cell')],[
                                                                      State('tabs','children'),State('tabs','value')])
-def generate_dashboard_tabs(cell,n_clicks,children,value):
+def generate_dashboard_tabs(cell,children,value):
     if cell:
         router_id=str(get_router_id(cell['row']))
         if get_tab_child(router_id) not in children:
@@ -35,18 +37,12 @@ def generate_dashboard_tabs(cell,n_clicks,children,value):
                 selected_className='custom-tab--selected'))
         
         return children,router_id
-    if n_clicks and value!='index_page':
-        val=children[children.index(get_tab_child(value))+1] or children[children.index(get_tab_child(value))-1]
-        children.pop(get_tab_child(value))
-        return children,val
+
 
     else:
         raise PreventUpdate
 
-def get_list_of_routers():
-    df=pd.read_csv('Routerdata.csv')
-    df=df.sort_values('Router_id')
-    return df['Router_id'].unique()
+
 
 def generate_nw_details_tabs(router_id):
     def generate_nw_details_tabs_sub(t_r,t_nw,t_sw,t_hw,children,val):
@@ -111,24 +107,6 @@ for router_id in get_list_of_routers():
     )(close_dash(router_id))
            
 '''
-def get_network_col():
-    return 'Network Health'
-
-def get_hardware_col():
-    return 'Hardware Health'
-
-def get_software_col():
-    return 'Software Health'
-
-
-
-
-def get_router_id(row):
-    df=pd.read_csv('Routerdata.csv')
-    df=df.sort_values('Router_id')
-    temp=df['Router_id'].unique()
-    return temp[row]
-    
 
     
   
