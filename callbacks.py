@@ -8,17 +8,18 @@ import dash_html_components as html
 from dash.exceptions import PreventUpdate
 import os
 from db import get_router_id,get_list_of_routers,get_col
+from layouts import home_page
 
 '''
-@app.callback(Output('table','data'),[Input('input','n_submit')],[State('input','value'),State('table','data')])
-def add_router(n_submit,val,data):
+@app.callback(Output('output','children'),[Input('input','n_submit')],[State('input','value')])
+def add_router(n_submit,val):
     if n_submit:
         
         pid=os.fork()
         if not pid:
             os.system('python data_collection.py 7.23.98.1')
         data.append({'Router_id':val})
-    return data
+    return "Added"
 '''
 
 
@@ -26,10 +27,21 @@ def add_router(n_submit,val,data):
 def get_tab_child(router_id):
     return {'props': {'children': None,'id':router_id, 'label': 'ROUTER '+router_id, 'value': router_id,'className': 'custom-tab', 'selected_className': 'custom-tab--selected'}, 'type': 'Tab', 'namespace': 'dash_core_components'}
 
+@app.callback(Output('index','children'),[Input('add','n_clicks_timestamp'),Input('view','n_clicks_timestamp')])
+def from_index(add,view):
+    if add:
+        return html.Div([dcc.Input(id='input',value='Add Router',n_submit=0,style={'position':'relative','margin-left':'auto','margin-right':'auto','top':'50px','left':''}),
+                        html.H3(id='output')])    
+    if view:
+        return home_page
+    else:
+        raise PreventUpdate
+
+
 @app.callback([Output('tabs','children'),
                Output('tabs','value')],[Input('table','active_cell')],[
-                                                                     State('tabs','children'),State('tabs','value')])
-def generate_dashboard_tabs(cell,children,value):
+                                                                     State('tabs','children')])
+def generate_dashboard_tabs(cell,children):
     if cell:
         router_id=str(get_router_id(cell['row']))
         if get_tab_child(router_id) not in children:

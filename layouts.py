@@ -14,10 +14,17 @@ from db import get_list_of_routers,get_col
 
 
 button_style={'position':'relative','border-radius':'50%','bottom':'30px','color':'white','padding':'14px 40px','background-color':'#4289f4','margin':'auto','display':'block'}
-index_page= html.Div([
+
+index_page=html.Div([
+    html.Button(id="add", children="Add Router", n_clicks=0,style={**button_style,**{'top':'50px'}}),
+    html.Button(id="view", children="View Routers", n_clicks=0,style={**button_style,**{'top':'50px'}})
+
+],id='index')
+
+home_page= html.Div([
                 
                 html.Div([
-                    dcc.Input(id='input',value='Add Router',n_submit=0),
+                    
                     dash_table.DataTable(id='table',columns=[{'name':'Choose a Router','id':'Router_id'}],
                                                     data=[{'Router_id':i} for i in get_list_of_routers()] ,
                                                     style_cell={'textAlign':'center'},style_as_list_view=True, style_cell_conditional=[

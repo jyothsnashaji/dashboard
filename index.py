@@ -28,25 +28,19 @@ app.layout = html.Div([
               ],[Input('tabs','value')],[State('content','children'),
                                         State('content','key'),
                                         State('session','data'),
-                                        State('tabs','children'),
                                         State('session','modified_timestamp')])
-def display_dashboards(value,layout,key,data,tablist,ts):
+def display_dashboards(value,layout,key,data,ts):
     
     if ts is None:
         data={}
         data['index_page']=index_page
         return index_page,'index_page',data
     else:
-       
-        
-        
-            
         if(value!='index_page'):
             temp=data.get(value,router_dash(int(value)))
         else:
             temp=index_page
         data[key]=layout
-        
         return temp,value,data
     
 def generate_display_details(router_id):
