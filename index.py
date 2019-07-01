@@ -37,30 +37,32 @@ def display_dashboards(value,layout,key,data,ts):
         return index_page,'index_page',data
     else:
         if(value!='index_page'):
-            temp=data.get(value,router_dash(int(value)))
+            temp=data.get(value,router_dash(value))
         else:
             temp=index_page
         data[key]=layout
         return temp,value,data
     
 def generate_display_details(router_id):
-    def display_details(value):
-        if value=='dash'+str(router_id):
+    def display_details(value,ts):
+        if value=='dash'+router_id:
+            print("displaying layout")
             return router_dash_layout(router_id)
-        elif value=='nw'+str(router_id):
-            return router_details(router_id,'Network Health')
-        elif value=='hw'+str(router_id):
-            return router_details(router_id,'Hardware Health')
-        elif value=='sw'+str(router_id):
-            return router_details(router_id,'Software Health')
+        elif value=='nw'+router_id:
+            return router_details(router_id,'cpu')
+        elif value=='hw'+router_id:
+            return router_details(router_id,'cpu')
+        elif value=='sw'+router_id:
+            return router_details(router_id,'cpu')
         else:
-            return html.Div("404"+value+' '+str(router_id))
+            return html.Div("404"+value+' '+router_id)
     return display_details
 
 for router_id in get_list_of_routers():
     app.callback(
-        Output('dash_contents'+str(router_id),'children'),
-        [Input('dash_tabs'+str(router_id),'value')]
+        Output('dash_contents'+router_id,'children'),
+        [Input('dash_tabs'+router_id,'value'),
+        Input('update','n_intervals')]
     )(generate_display_details(router_id))
     
 

@@ -22,10 +22,10 @@ from sklearn.preprocessing import MinMaxScaler
 
 class router:
     
-    def connect (self, router_name):                     #COnnect to the device and return the child process created
-        child = pexpect.spawn ("ssh <your cisco id>@vayu-auto-lnx")
+    def connect (self, router_name,username,password):                     #COnnect to the device and return the child process created
+        child = pexpect.spawn ("ssh "+username+"@vayu-auto-lnx")
         child.expect ('password:')
-        child.sendline ("<Your cisco password>")
+        child.sendline (password)
         child.expect('Kickstarted')
         #print("ssh done")
         child.sendline ("telnet "+router_name)
@@ -122,8 +122,8 @@ class cpu:
         training_processed = training_processed.reshape(-1,1)
         print(training_processed)
  
-        scaler = MinMaxScaler(feature_range = (0, 1))
-        training_scaled = scaler.fit_transform(training_processed)  
+        #scaler = MinMaxScaler(feature_range = (0, 1))
+        training_scaled = training_processed#scaler.fit_transform(training_processed)  
 
         features_set = []  
         labels = []  
@@ -138,11 +138,11 @@ class cpu:
         return model
             
     
-def collect_and_store(router_name, model, __id):
+def collect_and_store(router_name,username,password, model, __id):
     mydb=db()
     test_cpu=cpu()
     my_router=router()
-    child = my_router.connect(router_name)
+    child = my_router.connect(router_name,username,password)
     database_name = router_name.replace(".","_")
     collection_name = "cpu"
     mongo_client=mydb.connect_to_mongo()
@@ -177,15 +177,15 @@ def collect_and_store(router_name, model, __id):
         for i in range(m_train-lag, m_train):  
             test_features.append(predict_processed[i])
                 
-        scaler = MinMaxScaler(feature_range = (0, 1))
-        test_features = scaler.fit_transform(test_features)  
+        #scaler = MinMaxScaler(feature_range = (0, 1))
+        #test_features = scaler.fit_transform(test_features)  
         test_features = np.array(test_features)  
         test_features = np.reshape(test_features, (1, lag, 1)) 
         print(test_features.shape)
         print(test_features)
             
         predictions = model.predict(test_features)
-        predictions = scaler.inverse_transform(predictions)
+        #predictions = scaler.inverse_transform(predictions)
         predictions = float(predictions[0,0])
         print(predictions)
         print(router_name)
@@ -200,8 +200,9 @@ def collect_and_store(router_name, model, __id):
 def main():
     lag=5
     router_name=""
-    for arg in sys.argv[1:]:
-        router_name = arg
+    router_name = sys.argv[1]
+    username=sys.argv[2]
+    password=sys.argv[3]
 
     model = Sequential()  
     model.add(LSTM(units=4, return_sequences=True, input_shape=(lag, 1))) 
@@ -222,7 +223,7 @@ def main():
 
     __id=0
     while(1):
-        model, __id = collect_and_store(router_name, model, __id)
+        model, __id = collect_and_store(router_name,username,password ,model, __id)
         time.sleep(60)
 
 

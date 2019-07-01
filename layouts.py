@@ -9,8 +9,8 @@ from plotly import tools
 import app
 from dash.dependencies import Input, Output,State
 from db import get_list_of_routers,get_col
-
-
+import numpy as np
+import datetime as dt
 
 
 button_style={'position':'relative','border-radius':'50%','bottom':'30px','color':'white','padding':'14px 40px','background-color':'#4289f4','margin':'auto','display':'block'}
@@ -21,18 +21,14 @@ index_page=html.Div([
 
 ],id='index')
 
-home_page= html.Div([
+def home_page():
+    return html.Div([
                 
                 html.Div([
                     
                     dash_table.DataTable(id='table',columns=[{'name':'Choose a Router','id':'Router_id'}],
-                                                    data=[{'Router_id':i} for i in get_list_of_routers()] ,
-                                                    style_cell={'textAlign':'center'},style_as_list_view=True, style_cell_conditional=[
-                                                            {
-                                                                'if': {'row_index': 'odd'},
-                                                                'backgroundColor': 'rgb(248, 248, 248)'
-                                                            }
-                                                        ],
+                                                    data=[{'Router_id':i.replace('_','.')} for i in get_list_of_routers()] ,
+                                                    style_cell={'textAlign':'center'},style_as_list_view=True, 
                                                     style_table={'height':'100%','paddingTop':'20px','paddingBottom':'20px','width':'75%','margin-left':'auto', 'margin-right':'auto'},
                                                     
                 )])
@@ -43,39 +39,40 @@ home_page= html.Div([
 
 def router_dash_layout(router_id):
     global button_style
+    
     return html.Div([
                 
                        
 
                 html.Div([
                 html.Div([
-                    dcc.Graph(id="g_sum"+str(router_id),figure=update_gaugemeter("Summary",router_id),
+                    dcc.Graph(id="g_sum"+router_id,figure=update_gaugemeter("cpu",router_id),
                     style={}),
                     
-                    html.Button(id="reset"+str(router_id),n_clicks=0,children="Reset",
+                    html.Button(id="reset"+router_id,n_clicks=0,children="Reset",
                                 style=button_style)
                         
             
                 ],style={'width':'50%','display':'inline-block'}),
                 html.Div([
-                    dcc.Graph(id="g_nw"+str(router_id),figure=update_gaugemeter("Network Health",router_id)),
+                    dcc.Graph(id="g_nw"+router_id,figure=update_gaugemeter("cpu",router_id)),
                     
-                    html.Button(id="b_nw"+str(router_id),n_clicks=0,children="Details",
+                    html.Button(id="b_nw"+router_id,n_clicks=0,children="Details",
                                 style=button_style)
                         
             
                 ],style={'width':'50%','display':'inline-block'})]),
                 html.Div([
                 html.Div([
-                    dcc.Graph(id="g_sw"+str(router_id),figure=update_gaugemeter("Software Health",router_id)),
-                    html.Button(id="b_sw"+str(router_id),n_clicks=0,children="Details",
+                    dcc.Graph(id="g_sw"+router_id,figure=update_gaugemeter("cpu",router_id)),
+                    html.Button(id="b_sw"+router_id,n_clicks=0,children="Details",
                                 style=button_style)
             
                 ],style={'width':'50%','display':'inline-block'}),
                 html.Div([
-                    dcc.Graph(id="g_hw"+str(router_id),figure=update_gaugemeter("Hardware Health",router_id)),
+                    dcc.Graph(id="g_hw"+router_id,figure=update_gaugemeter("cpu",router_id)),
                     
-                    html.Button(id="b_hw"+str(router_id),n_clicks=0,children="Details",
+                    html.Button(id="b_hw"+router_id,n_clicks=0,children="Details",
                                 style=button_style)
             
                 ],style={'width':'50%','display':'inline-block'})
@@ -85,19 +82,19 @@ def router_dash_layout(router_id):
 
 def router_dash(router_id):
     return html.Div([
-               
-                dcc.Tabs(id='dash_tabs'+str(router_id),value='dash'+str(router_id),parent_className='custom-tabs_sub',className='custom-tabs-container_sub',children=[
-                    dcc.Tab(label='Dashboard',value='dash'+str(router_id),className='custom-tab_sub',
-                selected_className='custom-tab--selected_sub',id='dash'+str(router_id))]),
+                dcc.Interval(id="update",n_intervals=0,interval=60000),
+                dcc.Tabs(id='dash_tabs'+router_id,value='dash'+router_id,parent_className='custom-tabs_sub',className='custom-tabs-container_sub',children=[
+                    dcc.Tab(label='Dashboard',value='dash'+router_id,className='custom-tab_sub',
+                selected_className='custom-tab--selected_sub',id='dash'+router_id)]),
                 
-                html.Div(id='dash_contents'+str(router_id))
+                html.Div(id='dash_contents'+router_id)
                 ])
           
     
         
 def update_gaugemeter(param,router_id):
     
-    score=get_col(param,router_id).mean()
+    score=np.mean(np.array(list(map(int,get_col(param,router_id)))))
     xco=0.24-0.15*math.cos(math.radians(1.8*score))
     yco=0.5+0.15*math.sin(math.radians(1.8*score))
     base_chart = {
@@ -196,21 +193,34 @@ def update_gaugemeter(param,router_id):
     fig = {"data": [base_chart, meter_chart_1],
        "layout": layout}
     return fig
-   
+
+
 def router_details(router_id,param):
   
 
-    trace1=go.Scatter(x=get_col('Time',router_id),y=get_col(param,router_id),name='A')
-    trace2=go.Scatter(x=get_col('Time',router_id),y=get_col(param,router_id),name='B')
-    trace3=go.Scatter(x=get_col('Time',router_id),y=get_col(param,router_id),name='C')
-    trace4=go.Scatter(x=get_col('Time',router_id),y=get_col(param,router_id),name='D')
+    trace11=go.Scatter(x=get_col('date',router_id),y=get_col('cpu',router_id),mode='lines',name="Actual") 
+    trace12=go.Scatter(x=get_col('date',router_id),y=get_col('pred_cpu',router_id),mode='lines',name="Predicted") 
+
+    trace21=go.Scatter(x=get_col('date',router_id),y=get_col('cpu',router_id),mode='lines',name="Actual") 
+    trace22=go.Scatter(x=get_col('date',router_id),y=get_col('pred_cpu',router_id),mode='lines',name="Predicted") 
+    
+    trace31=go.Scatter(x=get_col('date',router_id),y=get_col('cpu',router_id),mode='lines',name="Actual") 
+    trace32=go.Scatter(x=get_col('date',router_id),y=get_col('pred_cpu',router_id),mode='lines',name="Predicted") 
+    
+    trace41=go.Scatter(x=get_col('date',router_id),y=get_col('cpu',router_id),mode='lines',name="Actual") 
+    trace42=go.Scatter(x=get_col('date',router_id),y=get_col('pred_cpu',router_id),mode='lines',name="Predicted") 
+        
 
     fig = tools.make_subplots(rows=2, cols=2, subplot_titles=('A',"B","C","D"))
 
-    fig.append_trace(trace1, 1, 1)
-    fig.append_trace(trace2, 1, 2)
-    fig.append_trace(trace3, 2, 1)
-    fig.append_trace(trace4, 2, 2)
+    fig.append_trace(trace11, 1, 1)
+    fig.append_trace(trace12, 1, 1)
+    fig.append_trace(trace21, 1, 2)
+    fig.append_trace(trace31, 2, 1)
+    fig.append_trace(trace41, 2, 2)
+    fig.append_trace(trace22, 1, 2)
+    fig.append_trace(trace32, 2, 1)
+    fig.append_trace(trace42, 2, 2)
 
 
 
@@ -223,6 +233,8 @@ def router_details(router_id,param):
     layout=html.Div([
 
             html.Div([
+                
+                
                 dcc.Graph(id='graph',figure=fig)
             ])
         
