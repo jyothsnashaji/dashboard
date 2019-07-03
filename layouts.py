@@ -11,13 +11,16 @@ from dash.dependencies import Input, Output,State
 from db import get_list_of_routers,get_col
 import numpy as np
 import datetime as dt
+import plotly
+import dash_bootstrap_components as dbc
 
 
 button_style={'position':'relative','border-radius':'50%','bottom':'30px','color':'white','padding':'14px 40px','background-color':'#4289f4','margin':'auto','display':'block'}
 
 index_page=html.Div([
     html.Button(id="add", children="Add Router", n_clicks=0,style={**button_style,**{'top':'50px'}}),
-    html.Button(id="view", children="View Routers", n_clicks=0,style={**button_style,**{'top':'50px'}})
+    html.Button(id="view", children="Check Router Health", n_clicks=0,style={**button_style,**{'top':'50px'}}),
+    html.Button(id="map", children="View Router", n_clicks=0,style={**button_style,**{'top':'50px'}})
 
 ],id='index')
 
@@ -36,6 +39,58 @@ def home_page():
                
 ],id='main')
 
+def map_layout():
+    token="pk.eyJ1IjoianNoYWppIiwiYSI6ImNqeG13N29hZjA0M2UzbnBrcHR4c2MweDUifQ.1ug21CZIfFS7KPCDX-rJVA"
+    lat = [12.937591,12.935666 ]
+    lon = [77.672863, 77.694879]
+    img=''
+    data = [
+    go.Scattermapbox(
+        lat=lat,
+        lon=lon,
+        mode='markers',
+        marker=go.scattermapbox.Marker(
+            symbol='circle',
+            size=14,
+            color='red'
+        ),
+        text=[i.replace("_",'.') for i in get_list_of_routers()],
+    )
+    ]
+
+    layout = go.Layout(
+    autosize=True,
+    hovermode='closest',
+    mapbox=go.layout.Mapbox(
+        accesstoken=token,
+        bearing=0,
+        center=go.layout.mapbox.Center(
+            lat=lat[0],
+            lon=lon[0]
+        ),
+        pitch=0,
+        zoom=10
+    ),
+    )
+    fig = go.Figure(data=data, layout=layout )
+    return html.Div([
+        dcc.Graph(id='map_g',figure=fig)
+    ])
+
+
+
+
+def add_router_layout():
+    style={'display':'block','margin-left':'auto','margin-top':'50px','border-color':'#4289f4','margin-right':'auto'}
+    alert={'display':'block','margin-left':'auto','background':'#b2cdf7','color':'#4289f4','margin-right':'auto','textAlign':'center','width':'50%'}
+    global button_style
+    return html.Div([dbc.Alert(id="alert-fade",dismissable=True,is_open=False,style=alert),
+                        dcc.Input(id='username',value='Username',n_submit=0,style=style),
+                        dcc.Input(id='password',value='Password',type='password',n_submit=0,style=style),
+                        dcc.Input(id='input',value='Router',n_submit=0,style=style),
+                        html.Button(id='add_router',children="Add",n_clicks=0,style={**button_style,**style}),
+                        ],style={'position':'relative'}) 
+
 
 def router_dash_layout(router_id):
     global button_style
@@ -46,16 +101,18 @@ def router_dash_layout(router_id):
 
                 html.Div([
                 html.Div([
-                    dcc.Graph(id="g_sum"+router_id,figure=update_gaugemeter("cpu",router_id),
-                    style={}),
                     
+                    dcc.Graph(id="g_sum"+router_id,figure=update_gaugemeter("Summary",router_id)
+                    ),
+        
                     html.Button(id="reset"+router_id,n_clicks=0,children="Reset",
-                                style=button_style)
+                                style={**button_style,**{}})
                         
             
                 ],style={'width':'50%','display':'inline-block'}),
                 html.Div([
-                    dcc.Graph(id="g_nw"+router_id,figure=update_gaugemeter("cpu",router_id)),
+                    dcc.Graph(id="g_nw"+router_id,figure=update_gaugemeter("Network Health",router_id),
+                            style={}),
                     
                     html.Button(id="b_nw"+router_id,n_clicks=0,children="Details",
                                 style=button_style)
@@ -64,13 +121,13 @@ def router_dash_layout(router_id):
                 ],style={'width':'50%','display':'inline-block'})]),
                 html.Div([
                 html.Div([
-                    dcc.Graph(id="g_sw"+router_id,figure=update_gaugemeter("cpu",router_id)),
+                    dcc.Graph(id="g_sw"+router_id,figure=update_gaugemeter("Hardware Health",router_id)),
                     html.Button(id="b_sw"+router_id,n_clicks=0,children="Details",
                                 style=button_style)
             
                 ],style={'width':'50%','display':'inline-block'}),
                 html.Div([
-                    dcc.Graph(id="g_hw"+router_id,figure=update_gaugemeter("cpu",router_id)),
+                    dcc.Graph(id="g_hw"+router_id,figure=update_gaugemeter("Software Health",router_id)),
                     
                     html.Button(id="b_hw"+router_id,n_clicks=0,children="Details",
                                 style=button_style)
@@ -94,7 +151,7 @@ def router_dash(router_id):
         
 def update_gaugemeter(param,router_id):
     
-    score=np.mean(np.array(list(map(int,get_col(param,router_id)))))
+    score=np.mean(np.array(list(map(int,get_col("cpu",router_id)))))
     xco=0.24-0.15*math.cos(math.radians(1.8*score))
     yco=0.5+0.15*math.sin(math.radians(1.8*score))
     base_chart = {
@@ -149,7 +206,10 @@ def update_gaugemeter(param,router_id):
     'title':{
         'text':param,
         'size':'20px',
-        'color':'#4289f4'
+        'color':'#4289f4',
+        'pad':{
+                'top':'50px'
+        }
 
     },
     'xaxis': {

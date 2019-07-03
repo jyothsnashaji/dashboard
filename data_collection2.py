@@ -167,14 +167,14 @@ def collect_and_store(router_name,username,password, model, __id):
     if(m_train > lag):
         cursor = collection.find({"_id":{"$gt":__id-60}})    
         cpu_training_complete_temp=list(cursor)
-        cpu_training_complete=pd.DataFrame(cpu_training_complete_temp[0:m_train])
+        cpu_training_complete=pd.DataFrame(cpu_training_complete_temp)
         print(cpu_training_complete)
         
         model = test_cpu.train_lstm_model(model, cpu_training_complete, 10, 10, lag)
         predict_processed = cpu_training_complete.loc[:, "cpu"].values
         predict_processed = predict_processed.reshape(-1,1)
         test_features = []  
-        for i in range(m_train-lag, m_train):  
+        for i in range(len(predict_processed)-lag, len(predict_processed)):
             test_features.append(predict_processed[i])
                 
         #scaler = MinMaxScaler(feature_range = (0, 1))

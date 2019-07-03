@@ -8,7 +8,7 @@ import dash_html_components as html
 from dash.exceptions import PreventUpdate
 import os
 from db import get_router_id,get_list_of_routers,get_col
-from layouts import home_page
+from layouts import home_page,map_layout,add_router_layout
 from sys import exit
 import dash_bootstrap_components as dbc
 
@@ -46,20 +46,15 @@ def get_tab_child(router_id):
     return {'props': {'children': None,'id':router_id, 'label': 'ROUTER '+router_id.replace('_','.'), 'value': router_id,'className': 'custom-tab', 'selected_className': 'custom-tab--selected'}, 'type': 'Tab', 'namespace': 'dash_core_components'}
 
 
-@app.callback(Output('index','children'),[Input('add','n_clicks_timestamp'),Input('view','n_clicks_timestamp')])
-def from_index(add,view):
+@app.callback(Output('index','children'),[Input('add','n_clicks_timestamp'),Input('view','n_clicks_timestamp'),Input('map','n_clicks_timestamp')])
+def from_index(add,view,map_):
     if add:
-        style={'display':'block','margin-left':'auto','margin-top':'50px','border-color':'#4289f4','margin-right':'auto'}
-        alert={'display':'block','margin-left':'auto','background':'#b2cdf7','color':'#4289f4','margin-right':'auto','textAlign':'center','width':'50%'}
-        global button_style
-        return html.Div([dbc.Alert(id="alert-fade",dismissable=True,is_open=False,style=alert),
-                        dcc.Input(id='username',value='Username',n_submit=0,style=style),
-                        dcc.Input(id='password',value='Password',type='password',n_submit=0,style=style),
-                        dcc.Input(id='input',value='Router',n_submit=0,style=style),
-                        html.Button(id='add_router',children="Add",n_clicks=0,style={**button_style,**style}),
-                        ],style={'position':'relative'})    
+        return add_router_layout()   
     if view:
         return home_page()
+    if map_:
+        return map_layout()
+
     else:
         raise PreventUpdate
 
@@ -67,7 +62,7 @@ def from_index(add,view):
 @app.callback([Output('tabs','children'),
                Output('tabs','value')],[Input('table','active_cell')],[
                                                                      State('tabs','children')])
-def generate_dashboard_tabs(cell,children)
+def generate_dashboard_tabs(cell,children):
     if cell:
         router_id=get_router_id(cell['row'])
         

@@ -3,16 +3,7 @@ import dash_html_components as html
 import dash 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.layout = html.Div(
-    [
-        dbc.Alert("This is a primary alert", color="primary"),
-        dbc.Alert("This is a secondary alert", color="secondary"),
-        dbc.Alert("This is a success alert! Well done!", color="success"),
-        dbc.Alert("This is a warning alert... be careful...", color="warning"),
-        dbc.Alert("This is a danger alert. Scary!", color="danger"),
-        dbc.Alert("This is an info alert. Good to know!", color="info"),
-        dbc.Alert("This is a light alert", color="light"),
-        dbc.Alert("This is a dark alert", color="dark"),
-    ]
+    html.Iframe(src="https://www.google.com/maps/embed/v1/place?q=40.7127837,-74.0059413&amp;key=AIzaSyAGCnR9T4ANEX0q_wpvbqUZKjslDqkPjn8")
 )
 
 if __name__ == "__main__":

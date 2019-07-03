@@ -49,5 +49,4 @@ def get_router_id(row):
        if row == c:
            
            return i
-           break
        c=c+1

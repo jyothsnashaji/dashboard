@@ -1,1 +1,1 @@
-1 minutes ago, CPU utilization: 18%
+1 minutes ago, CPU utilization: 16%
