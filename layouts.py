@@ -43,7 +43,7 @@ def map_layout():
     token="pk.eyJ1IjoianNoYWppIiwiYSI6ImNqeG13N29hZjA0M2UzbnBrcHR4c2MweDUifQ.1ug21CZIfFS7KPCDX-rJVA"
     lat = [12.937591,12.935666 ]
     lon = [77.672863, 77.694879]
-    img=''
+  
     data = [
     go.Scattermapbox(
         lat=lat,
@@ -140,9 +140,8 @@ def router_dash_layout(router_id):
 def router_dash(router_id):
     return html.Div([
                 dcc.Interval(id="update",n_intervals=0,interval=60000),
-                dcc.Tabs(id='dash_tabs'+router_id,value='dash'+router_id,parent_className='custom-tabs_sub',className='custom-tabs-container_sub',children=[
-                    dcc.Tab(label='Dashboard',value='dash'+router_id,className='custom-tab_sub',
-                selected_className='custom-tab--selected_sub',id='dash'+router_id)]),
+                dbc.Tabs(id='dash_tabs'+router_id,active_tab='dash'+router_id,children=[
+                    dbc.Tab(label='Dashboard',tab_id='dash'+router_id,id='dash'+router_id)]),
                 
                 html.Div(id='dash_contents'+router_id)
                 ])

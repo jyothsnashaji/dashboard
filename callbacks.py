@@ -5,13 +5,15 @@ from app import app
 import math
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.exceptions import PreventUpdate
+from dash.exceptions import PreventUpdate,DuplicateCallbackOutput
 import os
 from db import get_router_id,get_list_of_routers,get_col
 from layouts import home_page,map_layout,add_router_layout
 from sys import exit
 import dash_bootstrap_components as dbc
-
+from contextlib import suppress
+import collections
+app.config['suppress_callback_exceptions']=True
 
 button_style={'position':'relative','border-radius':'50%','bottom':'30px','color':'white','padding':'14px 40px','background-color':'#4289f4','margin':'auto','display':'block'}
 
@@ -42,9 +44,8 @@ def add_router(n_submit,val,username,password):
 
 
 
-def get_tab_child(router_id):
-    return {'props': {'children': None,'id':router_id, 'label': 'ROUTER '+router_id.replace('_','.'), 'value': router_id,'className': 'custom-tab', 'selected_className': 'custom-tab--selected'}, 'type': 'Tab', 'namespace': 'dash_core_components'}
-
+def get_tab_child(router_id):#change here!
+    return {'props': {'children': None, 'id': router_id, 'label': 'ROUTER '+router_id, 'tab_id': router_id}, 'type': 'Tab', 'namespace': 'dash_bootstrap_components/_components'}
 
 @app.callback(Output('index','children'),[Input('add','n_clicks_timestamp'),Input('view','n_clicks_timestamp'),Input('map','n_clicks_timestamp')])
 def from_index(add,view,map_):
@@ -59,16 +60,45 @@ def from_index(add,view,map_):
         raise PreventUpdate
 
 
+
+'''
+@app.callback(Output('script','src'),[Input('close','n_clicks')])
+def close_tabs(n_clicks):
+    if n_clicks:
+        return 'assets\\myscript.js'
+    return ''
+'''
+
+#print(app.config['suppress_callback_exceptions'],app.config.suppress_callback_exceptions,app.suppress_callback_exceptions)
+@app.callback([Output('tabs','children'),Output('tabs','active_tab'),Output('session','data')],[Input('close','n_clicks')],[State('tabs','active_tab'),State('tabs','children'),State('session','data')])  #comment in dash.py line 975 "raise duplicateoutput"
+def close_tabs(n_clicks,tab_id,tablist,data):
+    if n_clicks:
+        tab=get_tab_child(tab_id)
+        #print(data,tab_id)
+        del data[tab_id]
+        try:
+           val= tablist[tablist.index(tab)-1]['props']['id']
+        except:
+           val= tablist[tablist.index(tab)+1]['props']['id']
+        #print(tablist)
+        del tablist[tablist.index(tab)]
+        return tablist,val,data
+    else:
+        raise PreventUpdate
+
+
+
 @app.callback([Output('tabs','children'),
-               Output('tabs','value')],[Input('table','active_cell')],[
+               Output('tabs','active_tab')],[Input('table','active_cell')],[
                                                                      State('tabs','children')])
 def generate_dashboard_tabs(cell,children):
+    
     if cell:
         router_id=get_router_id(cell['row'])
-        
+        #print(children)
         if get_tab_child(router_id) not in children:
-            children.append(dcc.Tab(label='ROUTER '+router_id.replace('_','.'),id=router_id,value=router_id,className='custom-tab',
-                selected_className='custom-tab--selected'))
+            children.append(dbc.Tab(label='ROUTER '+router_id.replace('_','.'),id=router_id,tab_id=router_id))
+           
         
         return children,router_id
 
@@ -87,7 +117,7 @@ def generate_nw_details_tabs(router_id):
             time=np.max(times)
             if time==t_r:
                 return [
-                    dcc.Tab(label='Dashboard',value='dash'+router_id,id='dash'+router_id)],'dash'+router_id
+                    dbc.Tab(label='Dashboard',tab_id='dash'+router_id,id='dash'+router_id)],'dash'+router_id
             elif time==t_nw:
                 label='Network Health'
                 val='nw'+router_id
@@ -97,10 +127,9 @@ def generate_nw_details_tabs(router_id):
             else:
                 label='Hardware Health'
                 val='hw'+router_id
-            if {'props': {'children': None,'id':val, 'label': label, 'value': val,'className':'custom-tab_sub',
-                'selected_className':'custom-tab--selected_sub'}, 'type': 'Tab', 'namespace': 'dash_core_components'} not in children:
-                children.append(dcc.Tab(label=label,id=val,value=val,className='custom-tab_sub',
-                selected_className='custom-tab--selected_sub'))
+            print(children)
+            if {'props': {'children': None,'id':val, 'label': label, 'tab_id': val}, 'type': 'Tab', 'namespace': 'dash_bootstrap_components/_components'} not in children:
+                children.append(dbc.Tab(label=label,id=val,tab_id=val))
         return children,val
             
         
@@ -109,26 +138,26 @@ def generate_nw_details_tabs(router_id):
 for router_id in get_list_of_routers():
     app.callback(
         [Output('dash_tabs'+router_id,'children'),
-        Output('dash_tabs'+router_id,'value')],
+        Output('dash_tabs'+router_id,'active_tab')],
         [Input('reset'+router_id,'n_clicks_timestamp'),
         Input('b_nw'+router_id,'n_clicks_timestamp'),
         Input('b_sw'+router_id,'n_clicks_timestamp'),
         Input('b_hw'+router_id,'n_clicks_timestamp')],
         [State('dash_tabs'+router_id,'children'),
-        State('dash_tabs'+router_id,'value')]
+        State('dash_tabs'+router_id,'tab_id')]
     )(generate_nw_details_tabs(router_id))
 '''
 def close_dash(router_id):
     def close_dash_sub(n_clicks,tablist,data):
         if n_clicks:
             if tablist[tablist.index(get_tab_child(router_id))+1] ==None:
-                value=tablist[tablist.index(get_tab_child(router_id))-1]['props']['id']
+                tab_id=tablist[tablist.index(get_tab_child(router_id))-1]['props']['id']
             else:
-                value=tablist[tablist.index(get_tab_child(router_id))+1]['props']['id']
+                tab_id=tablist[tablist.index(get_tab_child(router_id))+1]['props']['id']
             
             tablist.remove(get_tab_child(router_id))
             data.pop(router_id)
-        return tablist,data,value
+        return tablist,data,tab_id
     return close_dash_sub
 
 
@@ -136,7 +165,7 @@ def close_dash(router_id):
 for router_id in get_list_of_routers():
     app.callback([Output('dash_tabs','children'),
                 Output('session','data'),
-                Output('tabs','value')],[Input('close'+router_id,'n_clicks')],
+                Output('tabs','tab_id')],[Input('close'+router_id,'n_clicks')],
                 [State('dash_tabs','children'),State('session','data')]
     )(close_dash(router_id))
            

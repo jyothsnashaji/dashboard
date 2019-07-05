@@ -14,7 +14,7 @@ h1 {
 label, p, a, h1, div {
   font-family: Roboto, sans-serif;
 }
-
+/*
 .custom-tabs-container {
     width: 100%;
     background:#00bcd4;
@@ -48,7 +48,7 @@ label, p, a, h1, div {
   border-bottom: none;
 
 }
-
+*/
 .custom-tabs-container_sub {
   width: 100%;
   background:white;
@@ -80,5 +80,75 @@ label, p, a, h1, div {
   border-left: 1px #00bcd4 !important;
   border-right: 1px #00bcd4 !important;
   border-bottom: 3px solid rgb(25, 91, 233) !important;
+}
+
+#ddtoptabs {
+  width: 970px;
+  margin: 0 auto;
+}
+
+#ddtoptabs_ul {
+  margin: 0;
+  padding: 0;
+  font: bold 14px Arial;
+  list-style-type: none;
+}
+
+#ddtoptabs_li {
+  display: inline;
+  margin: 0;
+}
+
+#ddtoptabs_li_a {
+  float: left;
+  display: block;
+  text-decoration: none;
+  margin: 0;
+  padding: 9px 8px;
+  /*padding inside each tab*/
+  color: white;
+  border-bottom-width: 0;
+  margin-right: 7px;
+  background: #425945;
+  border-radius: 7px 7px 0 0;
+  /*background of tabs (default state)*/
+}
+
+#ddtoptabs li a:visited {
+  color: white;
+}
+
+#ddtoptabs li a:hover, .mattblacktabs li.selected a {
+  background: #282828;
+  /*background of tabs for hover state, plus tab with "selected" class assigned to its LI */
+  border-color: black;
+}
+
+#ddtoptabsline {
+  clear: both;
+  padding: 0;
+  width: 100%;
+  height: 2px;
+  line-height: 8px;
+  background: black;
+}
+
+#ddtoptabsline .leftarrow, #ddtoptabsline .rightarrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: 0;
+  top: 100%;
+  z-index: 0;
+  border-color: black transparent transparent transparent;
+  /*top, right, bottom, and left border*/
+  border-style: solid;
+  border-width: 8px;
+  /*width of each border*/
+}
+
+#ddtoptabsline .rightarrow {
+  left: auto;
+  right: 0;
 }
 

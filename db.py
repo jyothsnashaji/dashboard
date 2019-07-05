@@ -29,14 +29,7 @@ def get_col(param,router_id):
        li.append(i[param])
     return li
 
-def get_network_col():
-    return 'Network Health'
 
-def get_hardware_col():
-    return 'Hardware Health'
-
-def get_software_col():
-    return 'Software Health'
 
 
 
