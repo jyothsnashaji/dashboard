@@ -1,19 +1,19 @@
 b"
 Router#
-Router#sh plat health summary all
+Router#show plat health summary all
 CATEGORY SELECTED : ALL
 FRU SELECTED : ALL
 Hello User. While I try to get the health of the router, here are some known facts about Cisco Systems:
-The logo of Cisco systems was inspired by the famous Golden Gate Bridge
+Cisco's fastest-growing business is its Cybersecurity unit
 
 Almost thereHere's one other fact:
-Cisco Systems went public in year 1990
+Cisco has acquired more than 170 companies since its first purchase of Crescendo Communications in 1993
 
 errors_on_im
 Router-ASR-903(RSP3_400)
 
            Router-ASR-903(RSP3_400)       
-           Uptime-2 days, 2 hours, 59 minutes    
+           Uptime-5 days, 7 hours, 24 minutes    
            Last reload reason: RP-Reset   
 H - Healthy;  W - Warning;  C - Critical                                                   
 
@@ -27,20 +27,20 @@ FRU_RP
 
 
 Total CPU UtilizationH   
-CPU-util(5 min):16 % #-   
+CPU-util(5 min):11 %    
 Top 3 processes:uea_mgr-10%   
-:linux_iosd-imag-8%   
+:linux_iosd-imag-6%   
 :iomd-1%   
 
 IOSd Process UtilizationH   
-IOSd-util(5 min):5 % #-   
-Top 3 processes:IOSD ipc task-1.51%   
-:SPA ENTITY Proce-0.00%   
+IOSd-util(5 min):3 %    
+Top 3 processes:IOSD ipc task-1.39%   
 :Tcl Serv - tty0-0.03%   
+:IOSXE-RP Punt Se-0.00%   
 
 Total Memory UtilizationH   
-Used Memory:2402452K   
-Percent Used:29 % #-   
+Used Memory:2410900K   
+Percent Used:30 %    
 Top 3 processes:uea_mgr   
 :linux_iosd-imag   
 :iomd   
@@ -134,4 +134,38 @@ Faults on the IM cardsH
 0/5:       XFI1: DEV_CEM_FPGA_XFI_NOTSYNC   
 0/5:      SFP_7: DEV_SFP_RECEIVER_LOSS_OF_SIGNAL   
 
-"
+SERDES Fualts b/w interconnectsH   
+
+     ERRORS   
+
+
+FRU_RP
+
+
+IOS Punt StatsH   
+
+CPU Punt Policer DropsH   
+
+CPU IP Traffic StatsH   
+
+FRU_FP
+
+
+Interface MAC StatsH   
+
+ASIC CountersH   
+
+ASIC Drop CountersH   
+
+ASIC Diag CountersW   
+Reason:QNOT_VALID   
+
+FRU_CC
+
+
+Errors on the IMH   
+
+ Note: For Items having C/W condition, refer https://www.cisco.com/c/en/us/support/routers/asr-903-health-monitor.html with error-code    
+
+
+Router#"

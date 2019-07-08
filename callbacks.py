@@ -17,7 +17,7 @@ app.config['suppress_callback_exceptions']=True
 
 
 
-@app.callback([Output('alert-fade','children'),Output('alert-fade','is_open')],[Input('add_router','n_clicks')],[State('input','value'),State('username','value'),State('password','value')])
+@app.callback(Output('alert-fade','is_open'),[Input('add_router','n_clicks')],[State('input','value'),State('username','value'),State('password','value')])
 def add_router(n_submit,val,username,password):
     output=""
     alert=False
@@ -32,13 +32,13 @@ def add_router(n_submit,val,username,password):
                 
                 os.system('python data_collection2.py '+val+' '+username+' '+password)
             else:
-                pass
+                os.system('python collect_data.py '+val+' '+username+' '+password)
             exit()
         print("submitted")
-        output="Router Added!"
+        
         alert=True
         
-    return output,alert
+    return alert
 
 
 

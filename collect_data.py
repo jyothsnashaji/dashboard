@@ -193,6 +193,8 @@ def main():
     router_name = sys.argv[1]
     username=sys.argv[2]
     password=sys.argv[3]
+    features=['cpu','iosd','mem','ipv4','ipv6','mac','fan','power','mpls','tcam','res','err','faults']
+    
     model = Sequential()  
     model.add(LSTM(units=4, return_sequences=True, input_shape=(lag, 1))) 
     model.add(Dropout(0.2)) 

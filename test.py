@@ -2,44 +2,46 @@
 import pexpect
 import re
 import numpy as np
-
+import time
 class router:
     
     def connect_new (self, router_name):                     #COnnect to the device and return the child process created
-        child = pexpect.spawn ("telnet 10.64.97.249 2029")
-        print("telnetting")
+        child = pexpect.spawn ("telnet 10.64.97.193 2029")
+        #print("telnetting")
+        child.expect('\r\n')
+        child.sendline('\r\n')
         
+        en=child.expect(['Router>','Router#'])
+        if (not en):
+            child.sendline('en')
+        print("Connected")
         
-        child.expect ('Trying 10.64.97.249...')
-        child.expect('Connected to 10.64.97.249.')
-        child.expect('Escape character is \'^]\'.')
-        print("connecting",child.before)
-        child.sendline('\n')
-        
-        child.expect('Router>')
-        print("Telnet done")
-    
         return child 
 
-    def parse_and_get_data():
-        f=open("parse.txt","r")
-        ch=f.read()
-        f.close()
+    def parse_and_get_data(ch):
+        
+        ch.sendline("show plat health summary all")
+        time.sleep(50)
+        
+        try:
+            ch.expect(pexpect.EOF)
+        except:
+           ch=str(ch.before)
+           
+        
+        
         ch= ch.replace('\\r\\n','\n')
         rem=['\\t','|\\r\\n|','>','<','..','|','==','__','**','##','--']
         for i in rem:
             ch=ch.replace(i,'')
-        f=open("parsed.txt",'w')
-        f.write(ch)       
-        print(ch)
-        f.close()
-        f=open("parsed.txt",'r')
-        ch=f.read()
 
-        '''
+        f=open('parsed.txt','w')
+        f.write(ch)
+        f.close()
+    
         cpu=re.findall(r'CPU-util\(5 min\):([^\s]+)',ch)
         cpu=int(cpu[0])
-        
+
         iosd=re.findall(r'IOSd-util\(5 min\):([^\s]+)',ch)
         iosd=int(iosd[0])
         
@@ -77,15 +79,16 @@ class router:
         
         err=int(re.findall(r'Pending Objects:([^\s]+)',ch)[0])+int(re.findall(r'Error objects:([^\s]+)',ch)[0])
         
-        faults=re.findall(r'Faults on the IM cardsH(.*?)(?=\")',ch,re.DOTALL)[0]
+        faults=re.findall(r'Faults on the IM cardsH(.*?)(?=SERDES Fualts b/w interconnectsH)',ch,re.DOTALL)[0]
         faults=np.array(re.findall(r'[0-9]*/[0-9]*',faults))
         faults=len(np.unique(faults))
-        '''
-        print(faults)
-        f.close()
+        
+        print(cpu,iosd,mem,ipv4,ipv6,mac,fan,power,mpls,tcam,res,err,faults)
+        
+    
 
 
 myrouter=router()
-#ch=myrouter.connect_new("router name")
-#router.parse_data()
-router.get_data()
+ch=myrouter.connect_new("router name")
+router.parse_and_get_data(ch)
+

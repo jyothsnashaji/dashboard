@@ -86,7 +86,17 @@ def add_router_layout():
     style={'display':'block','margin-left':'auto','margin-top':'50px','border-color':'#4289f4','margin-right':'auto'}
     alert={'display':'block','margin-left':'auto','background':'#b2cdf7','color':'#4289f4','margin-right':'auto','textAlign':'center','width':'50%'}
     
-    return html.Div([dbc.Alert(id="alert-fade",dismissable=True,is_open=False,style=alert),
+    return html.Div([dbc.Modal(
+            [
+                dbc.ModalHeader("Router Added"),
+                dbc.ModalBody("Wait for a few moments for changes to reflect"),
+                dbc.ModalFooter(
+                    "Click to close"
+                ),
+            ],
+            id="alert-fade",
+            size="sm",
+        ),
                         dcc.Input(id='username',value='Username',n_submit=0,style=style),
                         dcc.Input(id='password',value='Password',type='password',n_submit=0,style=style),
                         dcc.Input(id='input',value='Router',n_submit=0,style=style),
