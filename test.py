@@ -1,11 +1,12 @@
 
 import pexpect
 import re
+import numpy as np
 
 class router:
     
     def connect_new (self, router_name):                     #COnnect to the device and return the child process created
-        child = pexpect.spawn ("telnet 10.64.97.249 2013")
+        child = pexpect.spawn ("telnet 10.64.97.249 2029")
         print("telnetting")
         
         
@@ -20,7 +21,7 @@ class router:
     
         return child 
 
-    def parse_data():
+    def parse_and_get_data():
         f=open("parse.txt","r")
         ch=f.read()
         f.close()
@@ -32,8 +33,6 @@ class router:
         f.write(ch)       
         print(ch)
         f.close()
-
-    def get_data():
         f=open("parsed.txt",'r')
         ch=f.read()
 
@@ -63,9 +62,26 @@ class router:
         
         power=re.findall(r'Power consumed:([^\s]+)',ch)
         power=int(power[0])                      #in watts
-        '''
+      
 
-        print(power)
+        mpls=re.findall(r'Total MPLS Labels:([^\s]+)',ch)
+        if (not mpls):
+            mpls=0 
+        
+        tcam=re.findall(r'[a-z0-9A-Z\s]*:[0-9]*/[0-9]*:([^%]+)',ch)
+        tcam=sum(map(float,tcam))
+        
+        res=re.findall(r'ID Allocation Mgr in ASICH(.*?)(?=FRU_CC)',ch,re.DOTALL)[0]
+        res=re.findall(r'[a-z0-9A-Z\s]*:([^%]+)',res)
+        res=sum(map(float,res))
+        
+        err=int(re.findall(r'Pending Objects:([^\s]+)',ch)[0])+int(re.findall(r'Error objects:([^\s]+)',ch)[0])
+        
+        faults=re.findall(r'Faults on the IM cardsH(.*?)(?=\")',ch,re.DOTALL)[0]
+        faults=np.array(re.findall(r'[0-9]*/[0-9]*',faults))
+        faults=len(np.unique(faults))
+        '''
+        print(faults)
         f.close()
 
 

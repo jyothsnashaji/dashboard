@@ -14,7 +14,7 @@ import dash_bootstrap_components as dbc
 
 app.layout = html.Div([
                 
-                html.Div(children="HEALTH MONITOR DASHBOARD",style={'height':'100px','background': '#00bcd4',"textAlign":'center','paddingTop':'30px','font-size':'30px','font':'Comic Sans MS Header','color':'#4289f4'}),
+                html.Div(children="HEALTH MONITOR DASHBOARD",style={'height':'100px','background': 'rgb(0, 189, 236)',"textAlign":'center','paddingTop':'30px','font-size':'30px','font':'Comic Sans MS Header','color':'white'}),
                 dbc.Tabs(id='tabs',active_tab="index_page",children=[
                     dbc.Tab(id="index_page",label='HOME',tab_id="index_page")
                 ]),
@@ -23,7 +23,8 @@ app.layout = html.Div([
                 html.Button(id='close',children='x',hidden=True,className='close'),
                 dcc.Store(id='session',storage_type='session'),
                 html.Div(id='content',key='None',style={'height':'100%','bottom':'0px'}),
-                html.Img(src=app.get_asset_url('download.png'),style={'height':'50px','width':'100px','position':'relative','paddingLeft':'20px','bottom':'0px'})
+                html.Img(src=app.get_asset_url('download1.png'),style={'height':'100px','width':'110px','position':'absolute','paddingLeft':'25px','top':'0px'}),
+                html.Img(src=app.get_asset_url('a3.gif'),style={'height':'70px','width':'100px','position':'absolute','right':'40px','top':'15px'})
                 ])
 
 
