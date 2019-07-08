@@ -16,11 +16,11 @@ app.layout = html.Div([
                 
                 html.Div(children="HEALTH MONITOR DASHBOARD",style={'height':'100px','background': '#00bcd4',"textAlign":'center','paddingTop':'30px','font-size':'30px','font':'Comic Sans MS Header','color':'#4289f4'}),
                 dbc.Tabs(id='tabs',active_tab="index_page",children=[
-                    dbc.Tab(id="index_page",label='HOME',tab_id="index_page",children=index_page)
+                    dbc.Tab(id="index_page",label='HOME',tab_id="index_page")
                 ]),
 
 
-                html.Button(id='close',children='x',hidden=True,style={'border':'none','background':'transparent','float':'right'}),
+                html.Button(id='close',children='x',hidden=True,className='close'),
                 dcc.Store(id='session',storage_type='session'),
                 html.Div(id='content',key='None',style={'height':'100%','bottom':'0px'}),
                 html.Img(src=app.get_asset_url('download.png'),style={'height':'50px','width':'100px','position':'relative','paddingLeft':'20px','bottom':'0px'})
@@ -41,17 +41,17 @@ def display_dashboards(value,layout,key,data,ts):
     if ts is None:
         data={}
         data['index_page']=index_page
-        return '','index_page',data,hidden
+        return index_page,'index_page',data,hidden
     else:
        
         if(value!='index_page'):
             temp=data.get(value,router_dash(value))
             data[value]=temp
             hidden=False
-            print(temp)
+            
 
         else:
-            temp=''
+            temp=index_page
             
         if (data[key]):
             data[key]=layout

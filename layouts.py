@@ -17,31 +17,29 @@ import dash_bootstrap_components as dbc
 '''
 
 '''
+def home_page():
+    return html.Div([
+                    
+                    dash_table.DataTable(id='table',columns=[{'name':'Choose a Router','id':'Router_id'}],
+                                                    data=[{'Router_id':i.replace('_','.')} for i in get_list_of_routers()] ,
+                                                    style_cell={'textAlign':'center'},style_table={'margin':'auto','width':'30%','paddingTop':'20px'},style_as_list_view=True)
+                                                    
+                                                    
+     
+                
+               
+],id='main')
 
 
-index_page=dbc.Nav(
+index_page=html.Div([dbc.Nav(
     [
         dbc.NavItem(dbc.NavLink(id='view',children="Check Router Health", active=True, href="#")),
         dbc.NavItem(dbc.NavLink(id='add',children="Add Router", href="#")),
         dbc.NavItem(dbc.NavLink(id='map',children="View Routers", href="#"))
         
     ],
-    pills=True,id='index'
-)
-def home_page():
-    return html.Div([
-                
-                html.Div([
-                    
-                    dash_table.DataTable(id='table',columns=[{'name':'Choose a Router','id':'Router_id'}],
-                                                    data=[{'Router_id':i.replace('_','.')} for i in get_list_of_routers()] ,
-                                                    style_cell={'textAlign':'center'},style_as_list_view=True, 
-                                                    style_table={'height':'100%','paddingTop':'20px','paddingBottom':'20px','width':'75%','margin-left':'auto', 'margin-right':'auto'},
-                                                    
-                )])
-                
-               
-],id='main')
+    pills=True,style={'margin':'auto','width':'40%'}
+),html.Div(id='index',children=home_page())],style={'paddingTop':'20px'})
 
 def map_layout():
     token="pk.eyJ1IjoianNoYWppIiwiYSI6ImNqeG13N29hZjA0M2UzbnBrcHR4c2MweDUifQ.1ug21CZIfFS7KPCDX-rJVA"

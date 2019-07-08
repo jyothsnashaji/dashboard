@@ -7,7 +7,12 @@ button
   background-color:#4289f4;
   margin:auto;
   display:block;
+}
 
-
-
+#close
+{
+  position:static;
+  border:none;
+  background:transparent;
+  float:right;
 }

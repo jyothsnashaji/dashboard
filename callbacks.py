@@ -44,9 +44,9 @@ def add_router(n_submit,val,username,password):
 
 
 def get_tab_child(router_id):#change here!
-    return {'props': {'children': None, 'id': router_id, 'label': 'ROUTER '+router_id, 'tab_id': router_id}, 'type': 'Tab', 'namespace': 'dash_bootstrap_components/_components'}
+    return {'props': {'children': None, 'id': router_id, 'label': 'ROUTER '+router_id.replace('_','.'), 'tab_id': router_id}, 'type': 'Tab', 'namespace': 'dash_bootstrap_components/_components'}
 
-@app.callback(Output('content','children'),[Input('add','n_clicks_timestamp'),Input('view','n_clicks_timestamp'),Input('map','n_clicks_timestamp')])
+@app.callback([Output('index','children'),Output('add','active'),Output('view','active'),Output('map','active')],[Input('add','n_clicks_timestamp'),Input('view','n_clicks_timestamp'),Input('map','n_clicks_timestamp')])
 def from_index(add,view,map_):
     times=np.array([add,view,map_])
     print(times)
@@ -55,31 +55,25 @@ def from_index(add,view,map_):
     if times.size:
         time=np.max(times)
         if time==add:
-            return add_router_layout()   
+            return add_router_layout(),True,False,False 
         if time==view:
-            return home_page()
+            return home_page(),False,True,False
         if time==map_:
-            return map_layout()
+            return map_layout(),False,False,True
 
     else:
-        return home_page()
+        return home_page(),False,True,False
 
 
 
-'''
-@app.callback(Output('script','src'),[Input('close','n_clicks')])
-def close_tabs(n_clicks):
-    if n_clicks:
-        return 'assets\\myscript.js'
-    return ''
-'''
+
 
 #print(app.config['suppress_callback_exceptions'],app.config.suppress_callback_exceptions,app.suppress_callback_exceptions)
 @app.callback([Output('tabs','children'),Output('tabs','active_tab'),Output('session','data')],[Input('close','n_clicks')],[State('tabs','active_tab'),State('tabs','children'),State('session','data')])  #comment in dash.py line 975 "raise duplicateoutput"
 def close_tabs(n_clicks,tab_id,tablist,data):
     if n_clicks:
         tab=get_tab_child(tab_id)
-        #print(data,tab_id)
+        print(tablist)
         del data[tab_id]
         try:
            val= tablist[tablist.index(tab)-1]['props']['id']
