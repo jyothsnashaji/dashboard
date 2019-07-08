@@ -1,0 +1,137 @@
+b"
+Router#
+Router#sh plat health summary all
+CATEGORY SELECTED : ALL
+FRU SELECTED : ALL
+Hello User. While I try to get the health of the router, here are some known facts about Cisco Systems:
+The logo of Cisco systems was inspired by the famous Golden Gate Bridge
+
+Almost thereHere's one other fact:
+Cisco Systems went public in year 1990
+
+errors_on_im
+Router-ASR-903(RSP3_400)
+
+           Router-ASR-903(RSP3_400)       
+           Uptime-2 days, 2 hours, 59 minutes    
+           Last reload reason: RP-Reset   
+H - Healthy;  W - Warning;  C - Critical                                                   
+
+ITEM MONITOR OUTPUTHEALTH STATUS + ERROR CODE's          
+
+
+     UTILS   
+
+
+FRU_RP
+
+
+Total CPU UtilizationH   
+CPU-util(5 min):16 % #-   
+Top 3 processes:uea_mgr-10%   
+:linux_iosd-imag-8%   
+:iomd-1%   
+
+IOSd Process UtilizationH   
+IOSd-util(5 min):5 % #-   
+Top 3 processes:IOSD ipc task-1.51%   
+:SPA ENTITY Proce-0.00%   
+:Tcl Serv - tty0-0.03%   
+
+Total Memory UtilizationH   
+Used Memory:2402452K   
+Percent Used:29 % #-   
+Top 3 processes:uea_mgr   
+:linux_iosd-imag   
+:iomd   
+
+IPv4 Route UtilizationH   
+Total V4 prefixes:8/128000-0.01%   
+
+IPv6 Route UtilizationH   
+Total V6 prefixes:1/8000-0.01%   
+
+MPLS Label UtilizationH   
+Total MPLS Labels:   
+
+MAC Table UtilizationH   
+Total MACs Learnt:0/200000-0.0%   
+
+Fan speed & PowerH   
+Fan-speed:75%   
+Power consumed:516 Watts   
+
+FRU_FP
+
+
+External TCAM(KBP) UtilizationH   
+IPv4 RPF:0/32768:0.0%   
+IPv4 MC:11/4096:0.27%   
+LSR IP SHARED:10/163840:0.01%   
+LSR IP SHARED FOR IP:10/163840:0.01%   
+LSR IP SHARED FOR LSR:10/163840:0.01%   
+EXTENDED IPV6:1/8192:0.01%   
+ACL:0/4096:0.0%   
+ACL:0/4096:0.0%   
+ACL:4/2048:0.2%   
+
+ID Allocation Mgr in ASICH   
+Qos Flow ID:1.32%   
+RIF ID:0.78%   
+FEC ID:0.04%   
+Egress Static LIF:0.02%   
+Egress Static LIF:0.02%   
+Egress Static LIF:0.02%   
+Egress Static LIF:0.02%   
+Egress Static LIF:0.02%   
+gress Dynamic LIF:0.0%   
+gress Dynamic LIF:0.02%   
+gress Dynamic LIF:0.02%   
+gress Dynamic LIF:0.02%   
+Ingress LIF ID:0.0%   
+Egress LIF ID:0.0%   
+Multicast ID Res:0.0%   
+Multicast ID Dyn:0.59%   
+EOAM LMEPID:0.0%   
+EOAM RMEPID:0.0%   
+EOAM GROUP ID:0.05%   
+PMF PROT PTR:0.0%   
+VFI RCY LABEL:0.0%   
+
+FRU_CC
+
+
+fake_utils_fpH   
+fake_utils_fp:NULL   
+
+     FAULTS   
+
+
+FRU_RP
+
+
+Cores in past 24hrsH   
+Cores found:0   
+
+Status of ALL FRUsW   
+P1-Unknown:N/A   
+
+FRU_FP
+
+
+Errors/Pending ObjectsH   
+Pending Objects:0   
+Error objects:0   
+
+FRU_CC
+
+
+Faults on the IM cardsH   
+0/3:       XFI0: DEV_CEM_FPGA_XFI_NOTSYNC   
+0/3:       XFI1: DEV_CEM_FPGA_XFI_NOTSYNC   
+0/3:      SFP_7: DEV_SFP_RECEIVER_LOSS_OF_SIGNAL   
+0/5:       XFI0: DEV_CEM_FPGA_XFI_NOTSYNC   
+0/5:       XFI1: DEV_CEM_FPGA_XFI_NOTSYNC   
+0/5:      SFP_7: DEV_SFP_RECEIVER_LOSS_OF_SIGNAL   
+
+"

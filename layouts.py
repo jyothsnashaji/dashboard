@@ -14,16 +14,20 @@ import datetime as dt
 import plotly
 import dash_bootstrap_components as dbc
 
+'''
 
-button_style={'position':'relative','border-radius':'50%','bottom':'30px','color':'white','padding':'14px 40px','background-color':'#4289f4','margin':'auto','display':'block'}
+'''
 
-index_page=html.Div([
-    html.Button(id="add", children="Add Router", n_clicks=0,style={**button_style,**{'top':'50px'}}),
-    html.Button(id="view", children="Check Router Health", n_clicks=0,style={**button_style,**{'top':'50px'}}),
-    html.Button(id="map", children="View Router", n_clicks=0,style={**button_style,**{'top':'50px'}})
 
-],id='index')
-
+index_page=dbc.Nav(
+    [
+        dbc.NavItem(dbc.NavLink(id='view',children="Check Router Health", active=True, href="#")),
+        dbc.NavItem(dbc.NavLink(id='add',children="Add Router", href="#")),
+        dbc.NavItem(dbc.NavLink(id='map',children="View Routers", href="#"))
+        
+    ],
+    pills=True,id='index'
+)
 def home_page():
     return html.Div([
                 
@@ -83,17 +87,17 @@ def map_layout():
 def add_router_layout():
     style={'display':'block','margin-left':'auto','margin-top':'50px','border-color':'#4289f4','margin-right':'auto'}
     alert={'display':'block','margin-left':'auto','background':'#b2cdf7','color':'#4289f4','margin-right':'auto','textAlign':'center','width':'50%'}
-    global button_style
+    
     return html.Div([dbc.Alert(id="alert-fade",dismissable=True,is_open=False,style=alert),
                         dcc.Input(id='username',value='Username',n_submit=0,style=style),
                         dcc.Input(id='password',value='Password',type='password',n_submit=0,style=style),
                         dcc.Input(id='input',value='Router',n_submit=0,style=style),
-                        html.Button(id='add_router',children="Add",n_clicks=0,style={**button_style,**style}),
+                        html.Button(id='add_router',children="Add",n_clicks=0,style=style),
                         ],style={'position':'relative'}) 
 
 
 def router_dash_layout(router_id):
-    global button_style
+    
     
     return html.Div([
                 
@@ -105,32 +109,28 @@ def router_dash_layout(router_id):
                     dcc.Graph(id="g_sum"+router_id,figure=update_gaugemeter("Summary",router_id)
                     ),
         
-                    html.Button(id="reset"+router_id,n_clicks=0,children="Reset",
-                                style={**button_style,**{}})
+                    html.Button(id="reset"+router_id,n_clicks=0,children="Reset")
                         
             
                 ],style={'width':'50%','display':'inline-block'}),
                 html.Div([
                     dcc.Graph(id="g_nw"+router_id,figure=update_gaugemeter("Network Health",router_id),
-                            style={}),
+                            ),
                     
-                    html.Button(id="b_nw"+router_id,n_clicks=0,children="Details",
-                                style=button_style)
+                    html.Button(id="b_nw"+router_id,n_clicks=0,children="Details")
                         
             
                 ],style={'width':'50%','display':'inline-block'})]),
                 html.Div([
                 html.Div([
                     dcc.Graph(id="g_sw"+router_id,figure=update_gaugemeter("Hardware Health",router_id)),
-                    html.Button(id="b_sw"+router_id,n_clicks=0,children="Details",
-                                style=button_style)
+                    html.Button(id="b_sw"+router_id,n_clicks=0,children="Details")
             
                 ],style={'width':'50%','display':'inline-block'}),
                 html.Div([
                     dcc.Graph(id="g_hw"+router_id,figure=update_gaugemeter("Software Health",router_id)),
                     
-                    html.Button(id="b_hw"+router_id,n_clicks=0,children="Details",
-                                style=button_style)
+                    html.Button(id="b_hw"+router_id,n_clicks=0,children="Details")
             
                 ],style={'width':'50%','display':'inline-block'})
                 ])

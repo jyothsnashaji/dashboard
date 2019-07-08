@@ -15,7 +15,6 @@ from contextlib import suppress
 import collections
 app.config['suppress_callback_exceptions']=True
 
-button_style={'position':'relative','border-radius':'50%','bottom':'30px','color':'white','padding':'14px 40px','background-color':'#4289f4','margin':'auto','display':'block'}
 
 
 @app.callback([Output('alert-fade','children'),Output('alert-fade','is_open')],[Input('add_router','n_clicks')],[State('input','value'),State('username','value'),State('password','value')])
@@ -47,17 +46,23 @@ def add_router(n_submit,val,username,password):
 def get_tab_child(router_id):#change here!
     return {'props': {'children': None, 'id': router_id, 'label': 'ROUTER '+router_id, 'tab_id': router_id}, 'type': 'Tab', 'namespace': 'dash_bootstrap_components/_components'}
 
-@app.callback(Output('index','children'),[Input('add','n_clicks_timestamp'),Input('view','n_clicks_timestamp'),Input('map','n_clicks_timestamp')])
+@app.callback(Output('content','children'),[Input('add','n_clicks_timestamp'),Input('view','n_clicks_timestamp'),Input('map','n_clicks_timestamp')])
 def from_index(add,view,map_):
-    if add:
-        return add_router_layout()   
-    if view:
-        return home_page()
-    if map_:
-        return map_layout()
+    times=np.array([add,view,map_])
+    print(times)
+    times=times[times!=None]
+        
+    if times.size:
+        time=np.max(times)
+        if time==add:
+            return add_router_layout()   
+        if time==view:
+            return home_page()
+        if time==map_:
+            return map_layout()
 
     else:
-        raise PreventUpdate
+        return home_page()
 
 
 
@@ -146,30 +151,3 @@ for router_id in get_list_of_routers():
         [State('dash_tabs'+router_id,'children'),
         State('dash_tabs'+router_id,'tab_id')]
     )(generate_nw_details_tabs(router_id))
-'''
-def close_dash(router_id):
-    def close_dash_sub(n_clicks,tablist,data):
-        if n_clicks:
-            if tablist[tablist.index(get_tab_child(router_id))+1] ==None:
-                tab_id=tablist[tablist.index(get_tab_child(router_id))-1]['props']['id']
-            else:
-                tab_id=tablist[tablist.index(get_tab_child(router_id))+1]['props']['id']
-            
-            tablist.remove(get_tab_child(router_id))
-            data.pop(router_id)
-        return tablist,data,tab_id
-    return close_dash_sub
-
-
-
-for router_id in get_list_of_routers():
-    app.callback([Output('dash_tabs','children'),
-                Output('session','data'),
-                Output('tabs','tab_id')],[Input('close'+router_id,'n_clicks')],
-                [State('dash_tabs','children'),State('session','data')]
-    )(close_dash(router_id))
-           
-'''
-
-    
-  
