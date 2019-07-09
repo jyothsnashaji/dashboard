@@ -8,7 +8,7 @@ import dash_html_components as html
 from dash.exceptions import PreventUpdate,DuplicateCallbackOutput
 import os
 from db import get_router_id,get_list_of_routers,get_col
-from layouts import home_page,map_layout,add_router_layout
+from layouts import home_page,map_layout,add_router_layout,router_details,router_dash_layout
 from sys import exit
 import dash_bootstrap_components as dbc
 from contextlib import suppress
@@ -108,40 +108,35 @@ def generate_dashboard_tabs(cell,children):
 
 
 def generate_nw_details_tabs(router_id):
-    def generate_nw_details_tabs_sub(t_r,t_nw,t_sw,t_hw,children,val):
+    def generate_nw_details_tabs_sub(t_r,t_nw,t_sw,t_hw):
         times=np.array([t_r,t_nw,t_sw,t_hw])
         times=times[times!=None]
         
         if times.size:
             time=np.max(times)
             if time==t_r:
-                return [
-                    dbc.Tab(label='Dashboard',tab_id='dash'+router_id,id='dash'+router_id)],'dash'+router_id
+                return router_dash_layout(router_id),True,False,False,False
             elif time==t_nw:
-                label='Network Health'
-                val='nw'+router_id
+                return router_details(router_id,'cpu'),False,True,False,False
             elif time==t_sw:
-                label='Software Health'
-                val='sw'+router_id
+                return router_details(router_id,'cpu'),False,False,True,False
             else:
-                label='Hardware Health'
-                val='hw'+router_id
-            print(children)
-            if {'props': {'children': None,'id':val, 'label': label, 'tab_id': val}, 'type': 'Tab', 'namespace': 'dash_bootstrap_components/_components'} not in children:
-                children.append(dbc.Tab(label=label,id=val,tab_id=val))
-        return children,val
+                return router_details(router_id,'cpu'),False,False,False,True
+            
+        return router_dash_layout(router_id),True,False,False,False
             
         
     return generate_nw_details_tabs_sub
     
 for router_id in get_list_of_routers():
     app.callback(
-        [Output('dash_tabs'+router_id,'children'),
-        Output('dash_tabs'+router_id,'active_tab')],
-        [Input('reset'+router_id,'n_clicks_timestamp'),
-        Input('b_nw'+router_id,'n_clicks_timestamp'),
-        Input('b_sw'+router_id,'n_clicks_timestamp'),
-        Input('b_hw'+router_id,'n_clicks_timestamp')],
-        [State('dash_tabs'+router_id,'children'),
-        State('dash_tabs'+router_id,'tab_id')]
+        [Output('dash_contents'+router_id,'children'),
+        Output('dash'+router_id,'active'),
+        Output('nw'+router_id,'active'),
+        Output('sw'+router_id,'active'),
+        Output('hw'+router_id,'active')],
+        [Input('dash'+router_id,'n_clicks_timestamp'),
+        Input('nw'+router_id,'n_clicks_timestamp'),
+        Input('sw'+router_id,'n_clicks_timestamp'),
+        Input('hw'+router_id,'n_clicks_timestamp')]
     )(generate_nw_details_tabs(router_id))

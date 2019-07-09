@@ -1,6 +1,3 @@
-    #Application to accept router name as input and continously collect data and make predictions
-
-#inputs
 lag=5
 import pymongo
 import numpy as np
@@ -35,6 +32,73 @@ class router:
         return child 
         #
         #
+    def parse_and_get_data(self,ch):
+        ch.sendline("show plat health summary all")
+        time.sleep(50)
+        
+        try:
+            ch.expect(pexpect.EOF)
+        except:
+           ch=str(ch.before)
+           
+        
+        
+        ch= ch.replace('\\r\\n','\n')
+        rem=['\\t','|\\r\\n|','>','<','..','|','==','__','**','##','--']
+        for i in rem:
+            ch=ch.replace(i,'')
+
+        f=open('parsed.txt','w')
+        f.write(ch)
+        f.close()
+    
+        cpu=re.findall(r'CPU-util\(5 min\)\s*:([^\s]+)',ch)
+        cpu=int(cpu[0])
+
+        iosd=re.findall(r'IOSd-util\(5 min\)\s*:([^\s]+)',ch)
+        iosd=int(iosd[0])
+        
+
+        mem=re.findall(r'Percent Used\s*:([^\s]+)',ch)
+        mem=int(mem[0])
+        
+
+        ipv4=re.findall(r'Total V4 prefixes\s*:[0-9]*/[0-9]*-([^%]+)',ch)
+        ipv4=ipv4[0]
+        
+        ipv6=re.findall(r'Total V6 prefixes\s*:[0-9]*/[0-9]*-([^%]+)',ch)
+        ipv6=ipv6[0]
+        
+        mac=re.findall(r'Total MACs Learnt\s*:[0-9]*/[0-9]*-([^%]+)',ch)
+        mac=mac[0]
+        
+        fan=re.findall(r'Fan-speed\s*:([^%]+)',ch)
+        fan=fan[0]
+        
+        power=re.findall(r'Power consumed\s*:([^\s]+)',ch)
+        power=int(power[0])                      #in watts
+      
+
+        mpls=re.findall(r'Total MPLS Labels\s*:([^\s]+)',ch)
+        if (not mpls):
+            mpls=0 
+        
+        tcam=re.findall(r'[a-z0-9A-Z\s]*\s*:[0-9]*/[0-9]*:([^%]+)',ch)
+        tcam=sum(map(float,tcam))
+        
+        res=re.findall(r'ID Allocation Mgr in ASICH(.*?)(?=FRU_CC)',ch,re.DOTALL)[0]
+        res=re.findall(r'[a-z0-9A-Z\s]*\s*:([^%]+)',res)
+        res=sum(map(float,res))
+        
+        err=int(re.findall(r'Pending Objects\s*:([^\s]+)',ch)[0])+int(re.findall(r'Error objects\s*:([^\s]+)',ch)[0])
+        
+        faults=re.findall(r'Faults on the IM cardsH(.*?)(?=SERDES Fualts b/w interconnectsH)',ch,re.DOTALL)[0]
+        faults=np.array(re.findall(r'[0-9]*/[0-9]*',faults))
+        faults=len(np.unique(faults))
+        
+
+        print(cpu,iosd,mem,ipv4,ipv6,mac,fan,power,mpls,tcam,res,err,faults)
+        return {'cpu':cpu,'iosd':iosd,'mem':mem,'ipv4':ipv4,'ipv6':ipv6,'mac':mac,'fan':fan,'power':power,'mpls':mpls,'tcam':tcam,'res':res,'err':err,'faults':faults}
     
     
     def start_cpu_data_collection (self, child):  #Starts data collection from child process and store it in mongo db
@@ -78,7 +142,20 @@ class db:
     def connect_to_mongo (self):        #Connects to local mongo database
         mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
         return (mongo_client)
+    def insert_init(self,router_name,__id):
+        database_name = router_name.replace(".","_")
+        collection_name = "data"
+        mongo_client=mydb.connect_to_mongo()
     
+        now = datetime.datetime.now().replace(second=0, microsecond=0) - datetime.timedelta(minutes=1)
+        next_date=now + datetime.timedelta(minutes=1)
+        database = mongo_client[database_name]
+        collection = database[collection_name]
+        if __id:
+            collection.insert_many([{"_id": __id+1, "date":next_date}])
+        else:
+            collection.insert_many([{"_id": __id, "date":next_date}])
+        __
     def insert_into_collection (self, mongo_client, database_name, collection_name, values_dict):
         #if (not(database_name in mongo_client.list_database_names())):
             #print ("Error : Database doest not exist!")
@@ -105,9 +182,9 @@ class db:
         
 class cpu:
         
-    def train_lstm_model(self, model, training_data, epochs, batch_size, lag):
+    def train_lstm_model(self, model, training_data, epochs, batch_size, lag,feature):
         m_train = training_data.shape[0]
-        training_processed = training_data.loc[:, "cpu"].values
+        training_processed = training_data.loc[:, feature].values
         training_processed = training_processed.reshape(-1,1)
         print(training_processed)
  
@@ -127,31 +204,29 @@ class cpu:
         return model
             
     
-def collect_and_store(router_name,username,password, model, __id):
+def collect_and_store(router_name, model, __id,feature,cur_):
     mydb=db()
     test_cpu=cpu()
-    my_router=router()
-    child = my_router.connect(router_name,username,password)
+    
     database_name = router_name.replace(".","_")
-    collection_name = "cpu"
+    collection_name = "data"
     mongo_client=mydb.connect_to_mongo()
     
     now = datetime.datetime.now().replace(second=0, microsecond=0) - datetime.timedelta(minutes=1)
     next_date=now + datetime.timedelta(minutes=1)
     database = mongo_client[database_name]
     collection = database[collection_name]
-    cur_cpu = my_router.start_cpu_data_collection(child)
+    
     
     m_train = collection.find().count()
     if(m_train <= lag):
-        collection.insert_many([{"_id": __id, "date":now, "pred_cpu":0, "cpu":cur_cpu}])
+        collection.update({"_id":__id},{"$set":{"pred_"+feature:0, feature:cur_[feature]}})
         __id+=1
-        m_train+=1
-        print(m_train+1)
+        
     else:
         collection.update({"_id":__id},{"$set":{"cpu":cur_cpu}})
         __id+=1
-        print(m_train)
+        
         
     if(m_train > lag):
         cursor = collection.find({"_id":{"$gt":__id-60}})    
@@ -159,8 +234,8 @@ def collect_and_store(router_name,username,password, model, __id):
         cpu_training_complete=pd.DataFrame(cpu_training_complete_temp)
         print(cpu_training_complete)
         
-        model = test_cpu.train_lstm_model(model, cpu_training_complete, 10, 10, lag)
-        predict_processed = cpu_training_complete.loc[:, "cpu"].values
+        model = test_cpu.train_lstm_model(model, cpu_training_complete, 10, 10, lag,feature)
+        predict_processed = cpu_training_complete.loc[:,feature].values
         predict_processed = predict_processed.reshape(-1,1)
         test_features = []  
         for i in range(len(predict_processed)-lag, len(predict_processed)):
@@ -179,7 +254,7 @@ def collect_and_store(router_name,username,password, model, __id):
         print(predictions)
         print(router_name)
             
-        mydb.insert_into_collection(mongo_client, database_name, collection_name, [{"_id": __id, "date":next_date, "pred_cpu":predictions, "cpu":0}])
+        mydb.update( {"_id": __id}, {"$set": {"pred_cpu":predictions, "cpu":0}})
             
         return model, __id
     
@@ -194,29 +269,37 @@ def main():
     username=sys.argv[2]
     password=sys.argv[3]
     features=['cpu','iosd','mem','ipv4','ipv6','mac','fan','power','mpls','tcam','res','err','faults']
-    
-    model = Sequential()  
-    model.add(LSTM(units=4, return_sequences=True, input_shape=(lag, 1))) 
-    model.add(Dropout(0.2)) 
+    models={}
+    for feature in features:
+        model = Sequential()  
+        model.add(LSTM(units=4, return_sequences=True, input_shape=(lag, 1))) 
+        model.add(Dropout(0.2)) 
 
-    model.add(LSTM(units=4, return_sequences=True))  
-    model.add(Dropout(0.2))
+        model.add(LSTM(units=4, return_sequences=True))  
+        model.add(Dropout(0.2))
 
-    model.add(LSTM(units=4, return_sequences=True))  
-    model.add(Dropout(0.2))
+        model.add(LSTM(units=4, return_sequences=True))  
+        model.add(Dropout(0.2))
 
-    model.add(LSTM(units=4))  
-    model.add(Dropout(0.2)) 
+        model.add(LSTM(units=4))  
+        model.add(Dropout(0.2)) 
 
-    model.add(Dense(units = 1)) 
+        model.add(Dense(units = 1)) 
 
-    model.compile(optimizer = 'adam', loss = 'mean_squared_error') 
-
+        model.compile(optimizer = 'adam', loss = 'mean_squared_error')
+        models[feature]=feature
     __id=0
-    while(1):
-        model, __id = collect_and_store(router_name,username,password,model, __id)
-        time.sleep(60)
-
+    mydb=db()
+   
+    while(__id>=0):
+        my_router=router()
+        child =my_router.connect(router_name,username,password)
+        cur_=my_router.parse_and_get_data(child)
+        mydb.insert_init(__id)
+        for feature in features:
+            models[feature],_ = collect_and_store(router_name,models[feature],__id,feature,cur_)
+        __id=__id+1
+        
 
     
 if __name__== "__main__":

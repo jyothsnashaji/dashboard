@@ -57,30 +57,6 @@ def display_dashboards(value,layout,key,data,ts):
         if (data[key]):
             data[key]=layout
         return temp,value,data,hidden
-    
-def generate_display_details(router_id):
-    def display_details(value,ts):
-        if value=='dash'+router_id:
-            #print("displaying layout")
-            return router_dash_layout(router_id)
-        elif value=='nw'+router_id:
-            return router_details(router_id,'cpu')
-        elif value=='hw'+router_id:
-            return router_details(router_id,'cpu')
-        elif value=='sw'+router_id:
-            return router_details(router_id,'cpu')
-        else:
-            return html.Div("404"+value+' '+router_id)
-    return display_details
-
-for router_id in get_list_of_routers():
-    app.callback(
-        Output('dash_contents'+router_id,'children'),
-        [Input('dash_tabs'+router_id,'active_tab'),
-        Input('update','n_intervals')]
-    )(generate_display_details(router_id))
-    
-
 
 
 if __name__ == '__main__':

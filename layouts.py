@@ -145,7 +145,7 @@ def router_dash_layout(router_id):
             ],style={'position':'relative'})
         
 
-def router_dash(router_id):
+def router_dash1(router_id):
     return html.Div([
                 dcc.Interval(id="update",n_intervals=0,interval=60000),
                 dbc.Tabs(id='dash_tabs'+router_id,active_tab='dash'+router_id,children=[
@@ -153,8 +153,18 @@ def router_dash(router_id):
                 
                 html.Div(id='dash_contents'+router_id)
                 ])
-          
-    
+def router_dash(router_id):
+    return html.Div([dcc.Interval(id="update",n_intervals=0,interval=60000),
+    dbc.Nav(
+    [
+        dbc.NavItem(dbc.NavLink(id='dash'+router_id,children="Dashboard", active=True, href="#")),
+        dbc.NavItem(dbc.NavLink(id='nw'+router_id,children="Network Health", href="#")),
+        dbc.NavItem(dbc.NavLink(id='hw'+router_id,children="Hardware Health", href="#")),
+        dbc.NavItem(dbc.NavLink(id='sw'+router_id,children="Software Health", href="#"))
+        
+    ],
+    pills=True,style={'margin':'auto','width':'50%'}
+    ),html.Div(id='dash_contents'+router_id,children=router_dash_layout(router_id))],style={'paddingTop':'20px'})  
         
 def update_gaugemeter(param,router_id):
     

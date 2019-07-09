@@ -3,6 +3,7 @@ import pexpect
 import re
 import numpy as np
 import time
+import datetime as dt
 class router:
     
     def connect_new (self, router_name):                     #COnnect to the device and return the child process created
@@ -21,7 +22,7 @@ class router:
     def parse_and_get_data(ch):
         
         ch.sendline("show plat health summary all")
-        time.sleep(50)
+        time.sleep(40)
         
         try:
             ch.expect(pexpect.EOF)
@@ -90,5 +91,7 @@ class router:
 
 myrouter=router()
 ch=myrouter.connect_new("router name")
+print(dt.datetime.now())
 router.parse_and_get_data(ch)
+print(dt.datetime.now())
 
