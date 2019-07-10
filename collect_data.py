@@ -195,7 +195,7 @@ class cpu:
         m_train = training_data.shape[0]
         training_processed = training_data.loc[:, feature].values
         training_processed = training_processed.reshape(-1,1)
-        print(training_processed)
+        print(m_train, training_processed)
  
         #scaler = MinMaxScaler(feature_range = (0, 1))
         training_scaled = training_processed
@@ -227,7 +227,7 @@ def collect_and_store(router_name, model, __id,feature,cur_):
     collection = database[collection_name]
     
     
-    m_train = collection.find().count()
+    m_train = collection.find().count()-2
     if(m_train <= lag):
         collection.update({"_id":__id},{"$set":{"pred_"+feature:0, feature:cur_[feature]}})
         __id+=1
@@ -242,7 +242,7 @@ def collect_and_store(router_name, model, __id,feature,cur_):
         cursor = collection.find({"_id":{"$in":list(range(__id-60,__id))}})    
         cpu_training_complete_temp=list(cursor)
         cpu_training_complete=pd.DataFrame(cpu_training_complete_temp)
-        print(cpu_training_complete)
+        print(m_train,cpu_training_complete)
         
         model = test_cpu.train_lstm_model(model, cpu_training_complete, 10, 10, lag,feature)
         predict_processed = cpu_training_complete.loc[:,feature].values
@@ -264,7 +264,7 @@ def collect_and_store(router_name, model, __id,feature,cur_):
         print(predictions)
         print(router_name)
             
-        collection.update( {"_id": __id}, {"$set": {"pred_"+feature:predictions, feature:0}})
+        collection.update( {"_id": __id}, {"$set": {"pred_"+feature:predictions, feature:'ff'}})
             
         return model, __id
     

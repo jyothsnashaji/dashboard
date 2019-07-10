@@ -117,11 +117,11 @@ def generate_nw_details_tabs(router_id):
             if time==t_r:
                 return router_dash_layout(router_id),True,False,False,False
             elif time==t_nw:
-                return router_details(router_id,'cpu'),False,True,False,False
+                return router_details(router_id,'network'),False,True,False,False
             elif time==t_sw:
-                return router_details(router_id,'cpu'),False,False,True,False
+                return router_details(router_id,'software'),False,False,True,False
             else:
-                return router_details(router_id,'cpu'),False,False,False,True
+                return router_details(router_id,'hardware'),False,False,False,True
             
         return router_dash_layout(router_id),True,False,False,False
             

@@ -8,7 +8,7 @@ import plotly.graph_objs as go
 from plotly import tools
 import app
 from dash.dependencies import Input, Output,State
-from db import get_list_of_routers,get_col
+from db import get_list_of_routers,get_col,get_col_group,compute_score,get_title
 import numpy as np
 import datetime as dt
 import plotly
@@ -107,10 +107,10 @@ def router_dash_layout(router_id):
     
     
     return html.Div([       
-                    dcc.Graph(id="g_sum"+router_id,figure=update_gaugemeter("Summary",router_id),className='gauge',style={'width':'25%','display':'inline-block'}),
-                    dcc.Graph(id="g_nw"+router_id,figure=update_gaugemeter("Network Health",router_id),className='gauge',style={'width':'25%','display':'inline-block'}),
-                    dcc.Graph(id="g_sw"+router_id,figure=update_gaugemeter("Hardware Health",router_id),className='gauge',style={'width':'25%','display':'inline-block'}),
-                    dcc.Graph(id="g_hw"+router_id,figure=update_gaugemeter("Software Health",router_id),className='gauge',style={'width':'25%','display':'inline-block'})
+                    dcc.Graph(id="g_sum"+router_id,figure=update_gaugemeter("summary",router_id),className='gauge',style={'width':'25%','display':'inline-block'}),
+                    dcc.Graph(id="g_nw"+router_id,figure=update_gaugemeter("network",router_id),className='gauge',style={'width':'25%','display':'inline-block'}),
+                    dcc.Graph(id="g_sw"+router_id,figure=update_gaugemeter("hardware",router_id),className='gauge',style={'width':'25%','display':'inline-block'}),
+                    dcc.Graph(id="g_hw"+router_id,figure=update_gaugemeter("software",router_id),className='gauge',style={'width':'25%','display':'inline-block'})
                     ],style={})
   
             
@@ -179,10 +179,10 @@ def router_dash(router_id):
         
 def update_gaugemeter(param,router_id):
     
-    score=np.mean(np.array(list(map(int,get_col("cpu",router_id)))))
-    
-    xco=0.5-0.25*math.cos(math.radians(1.8*score))
-    yco=0.5+0.25*math.sin(math.radians(1.8*score))
+    #score=np.mean(np.array(list(map(int,get_col("cpu",router_id)))))
+    score=compute_score(router_id,param)
+    xco=0.5-0.25*math.cos(math.radians(score))
+    yco=0.5+0.25*math.sin(math.radians(score))
     base_chart = {
     "values": [40, 10, 10, 10],
     "domain": {"x": [0, 1]},
@@ -285,40 +285,23 @@ def update_gaugemeter(param,router_id):
 
 
 def router_details(router_id,param):
-  
-
-    trace11=go.Scatter(x=get_col('date',router_id),y=get_col('cpu',router_id),mode='lines',name="Actual") 
-    trace12=go.Scatter(x=get_col('date',router_id),y=get_col('pred_cpu',router_id),mode='lines',name="Predicted") 
-
-    trace21=go.Scatter(x=get_col('date',router_id),y=get_col('cpu',router_id),mode='lines',name="Actual") 
-    trace22=go.Scatter(x=get_col('date',router_id),y=get_col('pred_cpu',router_id),mode='lines',name="Predicted") 
+    df=get_col_group(param)
     
-    trace31=go.Scatter(x=get_col('date',router_id),y=get_col('cpu',router_id),mode='lines',name="Actual") 
-    trace32=go.Scatter(x=get_col('date',router_id),y=get_col('pred_cpu',router_id),mode='lines',name="Predicted") 
-    
-    trace41=go.Scatter(x=get_col('date',router_id),y=get_col('cpu',router_id),mode='lines',name="Actual") 
-    trace42=go.Scatter(x=get_col('date',router_id),y=get_col('pred_cpu',router_id),mode='lines',name="Predicted") 
-        
-
-    fig = tools.make_subplots(rows=2, cols=2, subplot_titles=('A',"B","C","D"))
-
-    fig.append_trace(trace11, 1, 1)
-    fig.append_trace(trace12, 1, 1)
-    fig.append_trace(trace21, 1, 2)
-    fig.append_trace(trace31, 2, 1)
-    fig.append_trace(trace41, 2, 2)
-    fig.append_trace(trace22, 1, 2)
-    fig.append_trace(trace32, 2, 1)
-    fig.append_trace(trace42, 2, 2)
-
-
-
-    fig['layout']['yaxis1'].update(title='A')
-    fig['layout']['yaxis2'].update(title='B')
-    fig['layout']['yaxis3'].update(title='C')
-    fig['layout']['yaxis4'].update(title='D')
-    fig['layout']['title'].update(text=param)
-
+    fig = tools.make_subplots(rows=math.ceil(len(df)/2), cols=2, subplot_titles=[get_title(x) for x in df])
+    row=1 
+    col=1
+    i=0 
+    j=1
+    for x in df:
+        trace11=go.Scatter(x=get_col('date',router_id),y=get_col(x,router_id),mode='lines',name="Actual") 
+        trace12=go.Scatter(x=get_col('date',router_id),y=get_col('pred_'+x,router_id),mode='lines',name="Predicted") 
+        fig.append_trace(trace11,row, col)
+        fig.append_trace(trace12, row,col)
+        fig['layout']['yaxis'+str((row-1)*2+col)].update(title=get_title(x))
+        col=col+j
+        row=row+i
+        i=int(not i)
+        j=j*-1
     layout=html.Div([
 
             html.Div([
