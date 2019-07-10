@@ -103,8 +103,19 @@ def add_router_layout():
                         html.Button(id='add_router',children="Add",n_clicks=0,style=style),
                         ],style={'position':'relative'}) 
 
-
 def router_dash_layout(router_id):
+    
+    
+    return html.Div([       
+                    dcc.Graph(id="g_sum"+router_id,figure=update_gaugemeter("Summary",router_id),className='gauge',style={'width':'25%','display':'inline-block'}),
+                    dcc.Graph(id="g_nw"+router_id,figure=update_gaugemeter("Network Health",router_id),className='gauge',style={'width':'25%','display':'inline-block'}),
+                    dcc.Graph(id="g_sw"+router_id,figure=update_gaugemeter("Hardware Health",router_id),className='gauge',style={'width':'25%','display':'inline-block'}),
+                    dcc.Graph(id="g_hw"+router_id,figure=update_gaugemeter("Software Health",router_id),className='gauge',style={'width':'25%','display':'inline-block'})
+                    ],style={})
+  
+            
+                
+def router_dash_layout1(router_id):
     
     
     return html.Div([
@@ -163,17 +174,18 @@ def router_dash(router_id):
         dbc.NavItem(dbc.NavLink(id='sw'+router_id,children="Software Health", href="#"))
         
     ],
-    pills=True,style={'margin':'auto','width':'50%'}
+    pills=True,style={'paddingLeft':'5px','paddingRight':'5px'},fill=True,justified=True,
     ),html.Div(id='dash_contents'+router_id,children=router_dash_layout(router_id))],style={'paddingTop':'20px'})  
         
 def update_gaugemeter(param,router_id):
     
     score=np.mean(np.array(list(map(int,get_col("cpu",router_id)))))
-    xco=0.24-0.15*math.cos(math.radians(1.8*score))
-    yco=0.5+0.15*math.sin(math.radians(1.8*score))
+    
+    xco=0.5-0.25*math.cos(math.radians(1.8*score))
+    yco=0.5+0.25*math.sin(math.radians(1.8*score))
     base_chart = {
     "values": [40, 10, 10, 10],
-    "domain": {"x": [0, .48]},
+    "domain": {"x": [0, 1]},
     "marker": {
         "colors": [
             'rgb(255, 255, 255)',
@@ -207,7 +219,7 @@ def update_gaugemeter(param,router_id):
             'rgb(255, 0, 0)'
         ]
     },
-    "domain": {"x": [0, 0.48]},
+    "domain": {"x": [0, 1]},
     "name": "Gauge",
     "hole": .3,
     "type": "pie",
@@ -220,15 +232,7 @@ def update_gaugemeter(param,router_id):
     }
     base_chart['marker']['line']['width'] = 0
     layout = {
-    'title':{
-        'text':param,
-        'size':'20px',
-        'color':'#4289f4',
-        'pad':{
-                'top':'50px'
-        }
-
-    },
+    
     'xaxis': {
         'showticklabels': False,
         'showgrid': False,
@@ -243,7 +247,7 @@ def update_gaugemeter(param,router_id):
         {
             'type': 'path',
             #'path': 'M 0.239 0.5 L 0.19 0.5 L 0.241 0.5 C Z',
-            'path':'M 0.239 0.5 L '+str(xco) +' '+str(yco) +' L 0.241 0.5 C Z',
+            'path':'M 0.499 0.5 L '+str(xco) +' '+str(yco) +' L 0.501 0.5 C Z',
             'fillcolor': 'rgba(0,0,0)',
             'line': {
                 'width': 0.5
@@ -263,7 +267,15 @@ def update_gaugemeter(param,router_id):
             'showarrow': False,
             'align':'center'
         }
-    ]
+    ],
+    
+    'margin':{
+        'l':25,
+        'r':50,
+        't':50,
+         'b':50
+
+    }
     }   
 
 

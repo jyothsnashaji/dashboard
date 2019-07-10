@@ -22,12 +22,14 @@ class router:
     def connect (self, router_name,username,password):                     #COnnect to the device and return the child process created
         child = pexpect.spawn ("telnet 10.64.97.193 2029")
         #print("telnetting")
-        child.expect('\r\n')
         child.sendline('\r\n')
+        child.sendline('\r\n')
+#       child.expect('\r\n')
+#       child.sendline('\r\n')
         
         en=child.expect(['Router>','Router#'])
-        if (not en):
-            child.sendline('en')
+        
+        child.sendline('en')
         print("Connected")
         return child 
         #
@@ -39,7 +41,8 @@ class router:
         try:
             ch.expect(pexpect.EOF)
         except:
-           ch=str(ch.before)
+            child=ch
+            ch=str(ch.before)
            
         
         
@@ -98,8 +101,13 @@ class router:
         
 
         print(cpu,iosd,mem,ipv4,ipv6,mac,fan,power,mpls,tcam,res,err,faults)
-        return {'cpu':cpu,'iosd':iosd,'mem':mem,'ipv4':ipv4,'ipv6':ipv6,'mac':mac,'fan':fan,'power':power,'mpls':mpls,'tcam':tcam,'res':res,'err':err,'faults':faults}
-    
+        return child,{'cpu':cpu,'iosd':iosd,'mem':mem,'ipv4':ipv4,'ipv6':ipv6,'mac':mac,'fan':fan,'power':power,'mpls':mpls,'tcam':tcam,'res':res,'err':err,'faults':faults}
+
+    def close_connect(self,ch):
+        ch.sendline("\x1d\r")
+        ch.expect("telnet>")
+        ch.sendline("q")
+        print("closed")    
     
     def start_cpu_data_collection (self, child):  #Starts data collection from child process and store it in mongo db
         f=open("cpu_pexpect.txt","w")
@@ -143,19 +151,20 @@ class db:
         mongo_client = pymongo.MongoClient("mongodb://localhost:27017/")
         return (mongo_client)
     def insert_init(self,router_name,__id):
+
         database_name = router_name.replace(".","_")
         collection_name = "data"
-        mongo_client=mydb.connect_to_mongo()
+        mongo_client=self.connect_to_mongo()
     
         now = datetime.datetime.now().replace(second=0, microsecond=0) - datetime.timedelta(minutes=1)
         next_date=now + datetime.timedelta(minutes=1)
         database = mongo_client[database_name]
         collection = database[collection_name]
-        if __id:
-            collection.insert_many([{"_id": __id+1, "date":next_date}])
-        else:
-            collection.insert_many([{"_id": __id, "date":next_date}])
-        __
+        if not __id:
+            collection.insert_many([{"_id": __id, "date":now}])
+        
+        collection.insert_many([{"_id": __id+1, "date":next_date}])
+        
     def insert_into_collection (self, mongo_client, database_name, collection_name, values_dict):
         #if (not(database_name in mongo_client.list_database_names())):
             #print ("Error : Database doest not exist!")
@@ -196,7 +205,7 @@ class cpu:
         for i in range(lag, m_train):  
             features_set.append(training_scaled[i-lag:i, 0])
             labels.append(training_scaled[i, 0])
-
+        print(features_set,labels)
         features_set, labels = np.array(features_set), np.array(labels) 
         features_set = np.reshape(features_set, (features_set.shape[0], features_set.shape[1], 1)) 
 
@@ -222,14 +231,15 @@ def collect_and_store(router_name, model, __id,feature,cur_):
     if(m_train <= lag):
         collection.update({"_id":__id},{"$set":{"pred_"+feature:0, feature:cur_[feature]}})
         __id+=1
+        m_train+=1
         
     else:
-        collection.update({"_id":__id},{"$set":{"cpu":cur_cpu}})
+        collection.update({"_id":__id},{"$set":{feature:cur_[feature]}})
         __id+=1
         
         
     if(m_train > lag):
-        cursor = collection.find({"_id":{"$gt":__id-60}})    
+        cursor = collection.find({"_id":{"$in":list(range(__id-60,__id))}})    
         cpu_training_complete_temp=list(cursor)
         cpu_training_complete=pd.DataFrame(cpu_training_complete_temp)
         print(cpu_training_complete)
@@ -254,7 +264,7 @@ def collect_and_store(router_name, model, __id,feature,cur_):
         print(predictions)
         print(router_name)
             
-        mydb.update( {"_id": __id}, {"$set": {"pred_cpu":predictions, "cpu":0}})
+        collection.update( {"_id": __id}, {"$set": {"pred_"+feature:predictions, feature:0}})
             
         return model, __id
     
@@ -287,15 +297,14 @@ def main():
         model.add(Dense(units = 1)) 
 
         model.compile(optimizer = 'adam', loss = 'mean_squared_error')
-        models[feature]=feature
+        models[feature]=model
     __id=0
     mydb=db()
-   
+    my_router=router()
+    child =my_router.connect(router_name,username,password)
     while(__id>=0):
-        my_router=router()
-        child =my_router.connect(router_name,username,password)
-        cur_=my_router.parse_and_get_data(child)
-        mydb.insert_init(__id)
+        child,cur_=my_router.parse_and_get_data(child)
+        mydb.insert_init(router_name,__id)
         for feature in features:
             models[feature],_ = collect_and_store(router_name,models[feature],__id,feature,cur_)
         __id=__id+1

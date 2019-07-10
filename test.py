@@ -18,8 +18,9 @@ class router:
         print("Connected")
         
         return child 
+    
 
-    def parse_and_get_data(ch):
+    def parse_and_get_data(self,ch):
         
         ch.sendline("show plat health summary all")
         time.sleep(40)
@@ -27,7 +28,8 @@ class router:
         try:
             ch.expect(pexpect.EOF)
         except:
-           ch=str(ch.before)
+            child=ch
+            ch=str(ch.before)
            
         
         
@@ -85,13 +87,20 @@ class router:
         faults=len(np.unique(faults))
         
         print(cpu,iosd,mem,ipv4,ipv6,mac,fan,power,mpls,tcam,res,err,faults)
+        return child
         
     
-
+    def close_connect(self,ch):
+        ch.sendline("\x1d\r")
+        ch.expect("telnet>")
+        ch.sendline("q")
+        print("closed")
 
 myrouter=router()
 ch=myrouter.connect_new("router name")
-print(dt.datetime.now())
-router.parse_and_get_data(ch)
-print(dt.datetime.now())
+
+#print(dt.datetime.now())
+ch=myrouter.parse_and_get_data(ch)
+myrouter.close_connect(ch)
+#print(dt.datetime.now())
 
