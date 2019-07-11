@@ -1,3 +1,6 @@
+#run python3 index.py and click on the link. the port to be used(on the localhost can be specified in __main__)
+#!!!!in the dash.py file comment out "raise DuplicateOutputException"
+
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output,State
@@ -18,14 +21,14 @@ app.layout = html.Div([
                 dbc.Tabs(id='tabs',active_tab="index_page",children=[
                     dbc.Tab(id="index_page",label='HOME',tab_id="index_page")
                 ]),
-
-
                 html.Button(id='close',children='x',hidden=True,className='close'),
-                dcc.Store(id='session',storage_type='session'),
-                html.Div(id='content',key='None',style={'height':'100%','bottom':'0px'}),
+                dcc.Store(id='session',storage_type='session'), #to store sessions
+                html.Div(id='content',key='None',style={'height':'100%','bottom':'0px'}), #displays tab contents
                 html.Img(src=app.get_asset_url('download1.png'),style={'height':'100px','width':'110px','position':'absolute','paddingLeft':'25px','top':'0px'}),
                 html.Img(src=app.get_asset_url('a3.gif'),style={'height':'70px','width':'100px','position':'absolute','right':'40px','top':'15px'})
-                ])
+            ])
+
+                
 
 
 

@@ -16,7 +16,7 @@ import collections
 app.config['suppress_callback_exceptions']=True
 
 
-
+#adds router, start python script, displays dialog
 @app.callback(Output('alert-fade','is_open'),[Input('add_router','n_clicks')],[State('input','value'),State('username','value'),State('password','value')])
 def add_router(n_submit,val,username,password):
     output=""
@@ -46,6 +46,7 @@ def add_router(n_submit,val,username,password):
 def get_tab_child(router_id):#change here!
     return {'props': {'children': None, 'id': router_id, 'label': 'ROUTER '+router_id.replace('_','.'), 'tab_id': router_id}, 'type': 'Tab', 'namespace': 'dash_bootstrap_components/_components'}
 
+#navigates between tabs in main page
 @app.callback([Output('index','children'),Output('add','active'),Output('view','active'),Output('map','active')],[Input('add','n_clicks_timestamp'),Input('view','n_clicks_timestamp'),Input('map','n_clicks_timestamp')])
 def from_index(add,view,map_):
     times=np.array([add,view,map_])
@@ -67,8 +68,7 @@ def from_index(add,view,map_):
 
 
 
-
-#print(app.config['suppress_callback_exceptions'],app.config.suppress_callback_exceptions,app.suppress_callback_exceptions)
+#close tabs,change to next open tab, if none home. delete data from session
 @app.callback([Output('tabs','children'),Output('tabs','active_tab'),Output('session','data')],[Input('close','n_clicks')],[State('tabs','active_tab'),State('tabs','children'),State('session','data')])  #comment in dash.py line 975 "raise duplicateoutput"
 def close_tabs(n_clicks,tab_id,tablist,data):
     if n_clicks:
@@ -86,7 +86,7 @@ def close_tabs(n_clicks,tab_id,tablist,data):
         raise PreventUpdate
 
 
-
+#open new router tab on selection from table
 @app.callback([Output('tabs','children'),
                Output('tabs','active_tab')],[Input('table','active_cell')],[
                                                                      State('tabs','children')])
@@ -106,9 +106,9 @@ def generate_dashboard_tabs(cell,children):
         raise PreventUpdate
 
 
-
+#navigate between dashboard, and health graph pages
 def generate_nw_details_tabs(router_id):
-    def generate_nw_details_tabs_sub(t_r,t_nw,t_sw,t_hw):
+    def generate_nw_details_tabs_sub(t_r,t_nw,t_sw,t_hw,ts):
         times=np.array([t_r,t_nw,t_sw,t_hw])
         times=times[times!=None]
         
@@ -138,5 +138,6 @@ for router_id in get_list_of_routers():
         [Input('dash'+router_id,'n_clicks_timestamp'),
         Input('nw'+router_id,'n_clicks_timestamp'),
         Input('sw'+router_id,'n_clicks_timestamp'),
-        Input('hw'+router_id,'n_clicks_timestamp')]
+        Input('hw'+router_id,'n_clicks_timestamp'),
+        Input("update","n_intervals")]
     )(generate_nw_details_tabs(router_id))

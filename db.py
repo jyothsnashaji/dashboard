@@ -29,17 +29,19 @@ def get_title(param):
 def get_col(param,router_id):
     myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     
+    #now = datetime.datetime.now().replace(second=0, microsecond=0) -2* datetime.timedelta(minutes=1) #time stamp of detected cpu usage
+
     
     mydb = myclient[router_id]
     mycol = mydb["data"] 
     li=[]    
-    for i in  mycol.find({},{'_id':0,param:1}):
+    for i in  mycol.find({param:{"$exists":True}},{'_id':0,param:1}):
        li.append(i[param])
     return [l for l in li if l!='ff']          
                      
     
 
-#print(get_col("_id","1_1_1_1"))
+#print(get_col("_id","10_64_97_193"))
 
 
 
@@ -71,15 +73,15 @@ def compute_score(router_id,param):
     mydb = myclient[router_id]
     mycol = mydb["data"] 
     
-    #now = datetime.datetime.now().replace(second=0, microsecond=0) - datetime.timedelta(minutes=1) #time stamp of detected cpu usage
-    #now = now - 2*datetime.timedelta(minutes=1)
+    now = datetime.datetime.now().replace(second=0, microsecond=0) -3* datetime.timedelta(minutes=1) #time stamp of detected cpu usage
+   
 
 
     if (param=="summary"):
         return max(compute_score(router_id,"network"),compute_score(router_id,"hardware"),compute_score(router_id,"software"))
     pr={x:1 for x in get_col_group(param)}
     
-    df=list(mycol.find({"_id":63},projection={**pr,**{"_id":0}})) #fix now
+    df=list(mycol.find({"_id":1},projection={**pr,**{"_id":0}})) #fix now
     print(df)
     
     if param=="hardware":

@@ -41,8 +41,10 @@ class router:
         try:
             ch.expect(pexpect.EOF)
         except:
-            child=ch
-            ch=str(ch.before)
+            pass
+            
+        child=ch
+        ch=str(ch.before)
            
         
         
@@ -109,42 +111,7 @@ class router:
         ch.sendline("q")
         print("closed")    
     
-    def start_cpu_data_collection (self, child):  #Starts data collection from child process and store it in mongo db
-        f=open("cpu_pexpect.txt","w")
-        child.sendline("sh proce cpu plat hist 1min")
-        
-        child.expect("1 minutes ago, CPU utilization: [0-9]+%")
-        #print(child.after)
-        f.write(child.after)
-        f.close()
-        
-        #print("data collecting")
-        
-        now = datetime.datetime.now().replace(second=0, microsecond=0) - datetime.timedelta(minutes=1) #time stamp of detected cpu usage
-        next_minute = now + datetime.timedelta(minutes=1)
-        
-        f=open("cpu_pexpect.txt","r")
-        a=f.read()
-        f.close()
-        x=re.findall("[0-9]+",a)
-        #print x
-        #a=np.array(x)
-        #cpu=a.reshape(255,2)
-        #print(cpu.shape)
-        #print cpu
-        #df=pd.DataFrame(data=cpu[0:,1:], index=cpu[0:,0], columns=cpu[0,1:]) 
-        #df.columns=["cpu"]
-        #df.to_csv("cpu_pexcept_csv.csv")        
-        #
-        #
-        cpu_dict = {}
-        cpu_list = []
-        cpu_dict["_id"] = now
-        cpu_dict["cpu"] = x[1]
-        cpu_list.append(cpu_dict.copy())
-        print(cpu_list)    
-        return x[1]
-    
+  
 class db:
     
     def connect_to_mongo (self):        #Connects to local mongo database
@@ -156,7 +123,7 @@ class db:
         collection_name = "data"
         mongo_client=self.connect_to_mongo()
     
-        now = datetime.datetime.now().replace(second=0, microsecond=0) - datetime.timedelta(minutes=1)
+        now = datetime.datetime.now().replace(second=0, microsecond=0) #- datetime.timedelta(minutes=1)
         next_date=now + datetime.timedelta(minutes=1)
         database = mongo_client[database_name]
         collection = database[collection_name]
@@ -221,7 +188,7 @@ def collect_and_store(router_name, model, __id,feature,cur_):
     collection_name = "data"
     mongo_client=mydb.connect_to_mongo()
     
-    now = datetime.datetime.now().replace(second=0, microsecond=0) - datetime.timedelta(minutes=1)
+    now = datetime.datetime.now().replace(second=0, microsecond=0)# - datetime.timedelta(minutes=1)
     next_date=now + datetime.timedelta(minutes=1)
     database = mongo_client[database_name]
     collection = database[collection_name]
@@ -244,7 +211,6 @@ def collect_and_store(router_name, model, __id,feature,cur_):
         cpu_training_complete=pd.DataFrame(cpu_training_complete_temp)
         print(m_train,cpu_training_complete)
         
-        model = test_cpu.train_lstm_model(model, cpu_training_complete, 10, 10, lag,feature)
         predict_processed = cpu_training_complete.loc[:,feature].values
         predict_processed = predict_processed.reshape(-1,1)
         test_features = []  
@@ -257,7 +223,8 @@ def collect_and_store(router_name, model, __id,feature,cur_):
         test_features = np.reshape(test_features, (1, lag, 1)) 
         print(test_features.shape)
         print(test_features)
-            
+        model = test_cpu.train_lstm_model(model, cpu_training_complete, 10, 10, lag,feature)
+ 
         predictions = model.predict(test_features)
         #predictions = scaler.inverse_transform(predictions)
         predictions = float(predictions[0,0])
@@ -273,7 +240,7 @@ def collect_and_store(router_name, model, __id,feature,cur_):
 
 def main():
     lag=5
-    router_name=""
+   
     
     router_name = sys.argv[1]
     username=sys.argv[2]
@@ -298,7 +265,7 @@ def main():
 
         model.compile(optimizer = 'adam', loss = 'mean_squared_error')
         models[feature]=model
-    __id=0
+    __id=0 ##########################################
     mydb=db()
     my_router=router()
     child =my_router.connect(router_name,username,password)

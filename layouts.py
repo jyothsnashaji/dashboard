@@ -14,21 +14,14 @@ import datetime as dt
 import plotly
 import dash_bootstrap_components as dbc
 
-'''
 
-'''
 def home_page():
     return html.Div([
                     
                     dash_table.DataTable(id='table',columns=[{'name':'Choose a Router','id':'Router_id'}],
                                                     data=[{'Router_id':i.replace('_','.')} for i in get_list_of_routers()] ,
                                                     style_cell={'textAlign':'center'},style_table={'margin':'auto','width':'30%','paddingTop':'20px'},style_as_list_view=True)
-                                                    
-                                                    
-     
-                
-               
-],id='main')
+                    ],id='main')
 
 
 index_page=html.Div([dbc.Nav(

@@ -4,9 +4,10 @@ import pandas as pd
 def get_col(param,router_id):
     df=pd.read_csv('Routerdata.csv')
     df=df.sort_values('Router_id')
+    #print(df.loc[1:1,router_id].values)
     df=df[df['Router_id']==router_id]
     return df["Network Health"]
-
+#print(get_col(" ","Summary"))
 def get_list_of_routers():
     df=pd.read_csv('Routerdata.csv')
     df=df.sort_values('Router_id')
