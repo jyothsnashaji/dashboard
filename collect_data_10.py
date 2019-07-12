@@ -124,11 +124,12 @@ class db:
         database = mongo_client[database_name]
         collection = database[collection_name]
         if  __id<=10:
-            collection.insert_many([{"_id": __id, "date":now}])
-        #features=['cpu','iosd','mem','ipv4','ipv6','mac','fan','power','mpls','tcam','res','err','faults']
-
-        #pr={x:0 for x in features}
+            collection.insert_many([{"_id": __id}])
+ 
+        collection.update({"_id":__id},{"$set":{"date":now}})
         collection.insert_many([{"_id": __id+11, "date":next_date}])
+
+        
     def insert_into_collection (self, mongo_client, database_name, collection_name, values_dict):
         #if (not(database_name in mongo_client.list_database_names())):
             #print ("Error : Database doest not exist!")
@@ -192,7 +193,7 @@ def collect_and_store(router_name, model, __id,feature,cur_):
     database = mongo_client[database_name]
     collection = database[collection_name]
 
-    
+    now = datetime.datetime.now().replace(second=0, microsecond=0)
 
     m_train = collection.find().count()-12
     if(m_train <= lag):
