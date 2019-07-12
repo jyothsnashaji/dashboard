@@ -35,9 +35,9 @@ def get_col(param,router_id):
     mydb = myclient[router_id]
     mycol = mydb["data"] 
     li=[]    
-    for i in  mycol.find({param:{"$exists":True}},{'_id':0,param:1}):
+    for i in  mycol.find({param:{"$exists":True}},{'_id':0,param:1}).sort("date"):
        li.append(i[param])
-    return [l for l in li if l!='ff']          
+    return li          
                      
     
 

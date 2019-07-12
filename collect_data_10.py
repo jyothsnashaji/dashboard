@@ -199,11 +199,11 @@ def collect_and_store(router_name, model, __id,feature,cur_):
         collection.update({"_id":__id},{"$set":{"pred_"+feature:0, feature:cur_[feature]}})
         __id+=1
         m_train+=1
-        print(m_train+1)
+        #print(m_train-1)
     else:
         collection.update({"_id":__id},{"$set":{feature:cur_[feature]}})
         __id+=1
-        print(m_train)
+        print(__id-1,"updated")
 
     if m_train>lag:
 
@@ -240,8 +240,8 @@ def collect_and_store(router_name, model, __id,feature,cur_):
             predictions = float(predictions[0,0])
             print(predictions)
             
-                   
-            collection.update({"_id":pred_id},{"$set":{"pred_"+feature:predictions,feature:"ff"}})
+            
+            collection.update({"_id":pred_id},{"$set":{"pred_"+feature:predictions}})
             
 
     
