@@ -81,9 +81,9 @@ def compute_score(router_id,param):
         return max(compute_score(router_id,"network"),compute_score(router_id,"hardware"),compute_score(router_id,"software"))
     pr={x:1 for x in get_col_group(param)}
     
-    df=list(mycol.find({"_id":1},projection={**pr,**{"_id":0}})) #fix now
+    df=list(mycol.find({"date":now},projection={**pr,**{"_id":0}})) #fix now
     print(df)
-    
+    s
     if param=="hardware":
         act=float(df[0]["power"])
         df[0].update({"power":act/12})                  ####change here to get power from console
