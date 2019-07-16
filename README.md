@@ -29,14 +29,23 @@ to connect to the router, start data collection and predictions
 1. assets folder : Contains all the images,stylesheets and javascript. For css and js to be included into the dashboard, checkout https://dash.plot.ly/external-resources
 
 2.app.py : initialises an app object
+
 3.index.py : conatins the main dash layout
+
 4. callback.py : onevent functions. To change which file to be called when router added, change here
+
 5. layouts.py : layouts of all pages
+
 6.db.py: mongodb accesses
+
 7. data_collect_10: connects to a hardcoded router and fetched health summary and predicts the parameters for the next 10 minutes.(Timestamps need fixing.lagging behind)
+
 8. data_collect: predicts the parameters every one minute
+
 9. db_csv.py: for testing with csv
+
 10. Router_data.csv : random values to test the code
+
 11. data_collection(2).py: one minute ahead prediction of cpu utilization
 
 
