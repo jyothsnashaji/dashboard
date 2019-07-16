@@ -1,2 +1,0 @@
-b'show plat health summary all
-'
