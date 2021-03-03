@@ -83,7 +83,7 @@ def compute_score(router_id,param):
     
     df=list(mycol.find({"date":now},projection={**pr,**{"_id":0}})) #fix now
     print(df)
-    s
+    
     if param=="hardware":
         act=float(df[0]["power"])
         df[0].update({"power":act/12})                  ####change here to get power from console
