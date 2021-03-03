@@ -5,7 +5,7 @@ from app import app
 import math
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.exceptions import PreventUpdate,DuplicateCallbackOutput
+from dash.exceptions import PreventUpdate
 import os
 from db import get_router_id,get_list_of_routers,get_col
 from layouts import home_page,map_layout,add_router_layout,router_details,router_dash_layout
@@ -50,7 +50,6 @@ def get_tab_child(router_id):#change here!
 @app.callback([Output('index','children'),Output('add','active'),Output('view','active'),Output('map','active')],[Input('add','n_clicks_timestamp'),Input('view','n_clicks_timestamp'),Input('map','n_clicks_timestamp')])
 def from_index(add,view,map_):
     times=np.array([add,view,map_])
-    print(times)
     times=times[times!=None]
         
     if times.size:
@@ -69,7 +68,7 @@ def from_index(add,view,map_):
 
 
 #close tabs,change to next open tab, if none home. delete data from session
-@app.callback([Output('tabs','children'),Output('tabs','active_tab'),Output('session','data')],[Input('close','n_clicks')],[State('tabs','active_tab'),State('tabs','children'),State('session','data')])  #comment in dash.py line 975 "raise duplicateoutput"
+#@app.callback([Output('tabs','children'),Output('tabs','active_tab'),Output('session','data')],[Input('close','n_clicks')],[State('tabs','active_tab'),State('tabs','children'),State('session','data')])  #comment in dash.py line 975 "raise duplicateoutput"
 def close_tabs(n_clicks,tab_id,tablist,data):
     if n_clicks:
         tab=get_tab_child(tab_id)
@@ -141,3 +140,4 @@ for router_id in get_list_of_routers():
         Input('hw'+router_id,'n_clicks_timestamp'),
         Input("update","n_intervals")]
     )(generate_nw_details_tabs(router_id))
+
