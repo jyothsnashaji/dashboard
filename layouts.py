@@ -31,7 +31,7 @@ index_page=html.Div([dbc.Nav(
         dbc.NavItem(dbc.NavLink(id='map',children="View Routers", href="#"))
         
     ],
-    pills=True,style={'margin':'auto','width':'40%'}
+    style={'margin':'auto','width':'40%'}
 ),html.Div(id='index',children=home_page())],style={'paddingTop':'20px'})
 
 def map_layout():
@@ -166,8 +166,7 @@ def router_dash(router_id):
         dbc.NavItem(dbc.NavLink(id='hw'+router_id,children="Hardware Health", href="#")),
         dbc.NavItem(dbc.NavLink(id='sw'+router_id,children="Software Health", href="#"))
         
-    ],
-    pills=True,style={'paddingLeft':'5px','paddingRight':'5px'},fill=True,justified=True,
+    ],fill=True,justified=True,
     ),html.Div(id='dash_contents'+router_id,children=router_dash_layout(router_id))],style={'paddingTop':'20px'})  
         
 def update_gaugemeter(param,router_id):
